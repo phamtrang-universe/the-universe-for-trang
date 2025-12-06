@@ -53,31 +53,41 @@ html, body {
   pointer-events: auto;
 }
 
-/* Next arrow button */
+/* Next arrow button – transparent, black border, white arrow */
 #phase1Next {
   margin-top: 32px;
-  width: 58px;
-  height: 58px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.45);
-  background:
-    radial-gradient(circle at 30% 30%, #ffffff, #9cc9ff 55%, #1a2255 100%);
-  color: #020118;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+
+  /* viền đen */
+  border: 2px solid rgba(0, 0, 0, 0.9);
+
+  /* nền gần như trong suốt + chút glass nhẹ */
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  /* mũi tên trắng */
+  color: #ffffff;
   font-size: 26px;
   font-weight: 600;
+
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
   opacity: 0;
   transform: translateY(10px);
   pointer-events: none;
+
   transition:
     opacity 0.45s ease,
     transform 0.45s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.55);
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
 #phase1Next.visible {
@@ -86,12 +96,15 @@ html, body {
   pointer-events: auto;
 }
 
-#phase1Next:active {
-  transform: translateY(2px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+#phase1Next:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 
-/* Smaller phones */
+#phase1Next:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
 @media (max-width: 380px) {
   #phase1Text {
     max-width: 88vw;
