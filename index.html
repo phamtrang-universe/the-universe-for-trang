@@ -2,45 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Universe for Trang — Scorpius</title>
+  <title>Universe for Trang — Phase 1</title>
 
-  <!-- Mobile / iPhone friendly viewport -->
   <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-
   <meta name="theme-color" content="#020118" />
-  <meta name="description"
-        content="Touch to awaken the Scorpius constellation and fall into a cinematic 3D universe." />
 
-  <!-- Main styles -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Intro 2D experience: starfield + Scorpius outline -->
-  <canvas id="introCanvas" aria-label="Scorpius constellation"></canvas>
+  <!-- Cinematic space background -->
+  <canvas id="phase1Background" aria-label="Cinematic space background"></canvas>
 
-  <!-- Intro UI overlay -->
-  <div id="introUI" aria-hidden="false">
-    <h1 id="introHeadline">Touch to awaken Scorpius</h1>
-    <p id="introHint">Tap near any glowing star to begin</p>
+  <!-- Centered text + next arrow -->
+  <div id="phase1UI">
+    <div id="phase1Text"></div>
+
+    <button id="phase1Next" aria-label="Next">
+      →
+    </button>
   </div>
 
-  <!-- Flash overlay for the transition from 2D → 3D -->
-  <div id="screenFlash" aria-hidden="true"></div>
-
-  <!-- Final message overlay (fades in during the 3D phase) -->
-  <div id="finalMessage" aria-hidden="true">
-    In this universe, your light is the brightest.
-  </div>
-
-  <!-- 3D universe container: Three.js renderer will attach here -->
-  <div id="universe3D" aria-hidden="true"></div>
-
-  <!-- Three.js (global THREE namespace) -->
-  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-
-  <!-- Main logic: 2D intro + 3D universe + transitions -->
   <script src="scripts.js" defer></script>
 </body>
 </html>
