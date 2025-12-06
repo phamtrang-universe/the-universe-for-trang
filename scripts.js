@@ -4,6 +4,9 @@
    PHASE 2: Cinematic 3D universe (Three.js)
 ========================================================== */
 
+/* Debug check */
+console.log("scripts.js loaded");
+
 /* DOM references */
 const introCanvas = document.getElementById("introCanvas");
 const introCtx = introCanvas.getContext("2d");
@@ -288,15 +291,20 @@ let scorpiusGroup;
 let stars3D;
 let meteors = [];
 let meteorSpawnTimer = 0;
-
-const universeClock = new THREE.Clock();
+let universeClock = null; // khởi tạo sau khi chắc chắn THREE tồn tại
 
 /* Initialize Three.js scene */
 function initUniverse3D() {
+  if (typeof THREE === "undefined") {
+    console.error("Three.js failed to load. 3D phase will not run.");
+    return;
+  }
+
   const width = universe3DContainer.clientWidth;
   const height = universe3DContainer.clientHeight || window.innerHeight;
 
   scene = new THREE.Scene();
+  universeClock = new THREE.Clock();
 
   camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 2000);
   camera.position.set(0, 10, 70);
@@ -443,6 +451,8 @@ function spawnMeteor() {
 
 /* Universe animation loop */
 function animateUniverse() {
+  if (!universeClock || !renderer || !scene || !camera) return;
+
   const elapsed = universeClock.getElapsedTime();
   const delta = universeClock.getDelta();
 
