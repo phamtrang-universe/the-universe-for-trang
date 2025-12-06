@@ -231,6 +231,7 @@ function startPhase1Text() {
 
 /* Clicking next during typing: skip to full text */
 nextBtn.addEventListener("click", () => {
+  // Nếu vẫn đang gõ thì skip cho hiện full text đã
   if (isTyping) {
     if (typingTimer) clearInterval(typingTimer);
     textEl.textContent = phase1Line;
@@ -243,10 +244,9 @@ nextBtn.addEventListener("click", () => {
     return;
   }
 
-  // TODO: here we will hook Phase 2 later
-  console.log("Phase 1 finished → go to Phase 2 (placeholder)");
+  // Khi gõ xong và người dùng bấm mũi tên → sang Phase 2
+  window.location.href = "phase2.html";
 });
-
 /* Also allow tapping text to trigger next when arrow is visible */
 textEl.addEventListener("click", () => {
   if (!isTyping && nextBtn.classList.contains("visible")) {
