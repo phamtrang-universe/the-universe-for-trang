@@ -16,30 +16,30 @@ const screenFlash = document.getElementById("screenFlash");
 const finalMessage = document.getElementById("finalMessage");
 const universe3DContainer = document.getElementById("universe3D");
 
-/* High-DPI handling for 2D canvas */
-function resizeIntroCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-  const rect = introCanvas.getBoundingClientRect();
-
-  introCanvas.width = rect.width * dpr;
-  introCanvas.height = rect.height * dpr;
-
-  introCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  convertConstellationPoints();
-  createStarfield();
-}
-
-window.addEventListener("resize", resizeIntroCanvas);
-resizeIntroCanvas();
-
 /* ==========================================================
-   PHASE 1: STARFIELD + SCORPIUS CONSTELLATION (2D)
+   CONSTELLATION DATA (KHAI BÁO TRƯỚC)
 ========================================================== */
+
+/* Scorpius constellation (normalized coordinates) */
+const SCORPIUS_2D = [
+  { x: 0.32, y: 0.22 },
+  { x: 0.42, y: 0.32 },
+  { x: 0.51, y: 0.40 },
+  { x: 0.55, y: 0.50 },
+  { x: 0.48, y: 0.62 },
+  { x: 0.42, y: 0.75 },
+  { x: 0.53, y: 0.83 }
+];
+
+let scorpiusPoints2D = [];
 
 /* Starfield */
 let stars = [];
 const STAR_COUNT = 180;
+
+/* ==========================================================
+   2D HELPER FUNCTIONS
+========================================================== */
 
 function createStarfield() {
   stars = [];
@@ -57,6 +57,31 @@ function createStarfield() {
   }
 }
 
+function convertConstellationPoints() {
+  const width = introCanvas.clientWidth || window.innerWidth;
+  const height = introCanvas.clientHeight || window.innerHeight;
+
+  scorpiusPoints2D = SCORPIUS_2D.map(p => ({
+    x: p.x * width,
+    y: p.y * height
+  }));
+}
+
+/* High-DPI handling for 2D canvas */
+function resizeIntroCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = introCanvas.getBoundingClientRect();
+
+  introCanvas.width = rect.width * dpr;
+  introCanvas.height = rect.height * dpr;
+
+  introCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  convertConstellationPoints();
+  createStarfield();
+}
+
+/* Vẽ nền sao */
 function drawStarfield(time) {
   const width = introCanvas.clientWidth || window.innerWidth;
   const height = introCanvas.clientHeight || window.innerHeight;
@@ -81,39 +106,7 @@ function drawStarfield(time) {
   introCtx.restore();
 }
 
-/* Scorpius constellation (normalized coordinates) */
-const SCORPIUS_2D = [
-  { x: 0.32, y: 0.22 },
-  { x: 0.42, y: 0.32 },
-  { x: 0.51, y: 0.40 },
-  { x: 0.55, y: 0.50 },
-  { x: 0.48, y: 0.62 },
-  { x: 0.42, y: 0.75 },
-  { x: 0.53, y: 0.83 }
-];
-
-let scorpiusPoints2D = [];
-
-function convertConstellationPoints() {
-  const width = introCanvas.clientWidth || window.innerWidth;
-  const height = introCanvas.clientHeight || window.innerHeight;
-
-  scorpiusPoints2D = SCORPIUS_2D.map(p => ({
-    x: p.x * width,
-    y: p.y * height
-  }));
-}
-
-/* Intro animation state */
-let introRunning = true;
-let introStarted = false;
-let introFinished = false;
-
-let currentSegmentIndex = 0; // segment between point[i] and point[i+1]
-let segmentProgress = 0;     // 0 → 1
-const SEGMENT_DURATION = 650; // ms per segment
-
-/* Draw Scorpius points + animated connecting lines */
+/* Vẽ chòm sao Scorpius */
 function drawScorpius(time) {
   if (!scorpiusPoints2D.length) return;
 
@@ -170,7 +163,19 @@ function drawScorpius(time) {
   introCtx.stroke();
 }
 
-/* Intro tap handler: single tap to start auto-connecting */
+/* ==========================================================
+   PHASE 1 STATE + EVENT
+========================================================== */
+
+let introRunning = true;
+let introStarted = false;
+let introFinished = false;
+
+let currentSegmentIndex = 0; // segment between point[i] và point[i+1]
+let segmentProgress = 0;     // 0 → 1
+const SEGMENT_DURATION = 650; // ms per segment
+
+/* Tap: bắt đầu auto-connect */
 function onIntroTap(e) {
   if (introStarted || introFinished) return;
 
@@ -178,7 +183,7 @@ function onIntroTap(e) {
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
 
-  // Only start if user taps near any star
+  // Chỉ start nếu chạm gần 1 ngôi sao
   const threshold = 40;
   let nearStar = false;
   for (let p of scorpiusPoints2D) {
@@ -193,7 +198,7 @@ function onIntroTap(e) {
 
   introStarted = true;
 
-  // Subtle fade of hint text
+  // Fading hint text
   if (introUI) {
     introUI.style.opacity = "0.15";
   }
@@ -236,6 +241,9 @@ function animateIntro(now) {
   requestAnimationFrame(animateIntro);
 }
 
+/* Khởi động intro sau khi đã khai báo xong mọi thứ */
+window.addEventListener("resize", resizeIntroCanvas);
+resizeIntroCanvas();
 requestAnimationFrame(animateIntro);
 
 /* ==========================================================
