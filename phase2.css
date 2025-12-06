@@ -14,7 +14,7 @@ html, body {
 }
 
 /* Canvas */
-#p2Canvas {
+#phase2Canvas {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -24,7 +24,7 @@ html, body {
 }
 
 /* UI layer */
-#p2UI {
+#phase2UI {
   position: fixed;
   inset: 0;
   z-index: 20;
@@ -36,7 +36,7 @@ html, body {
 }
 
 /* Text */
-#p2Text {
+#phase2Text {
   max-width: 78vw;
   text-align: center;
   color: #ffffff;
@@ -47,67 +47,65 @@ html, body {
   filter: drop-shadow(0 0 6px rgba(255,255,255,0.16));
 }
 
-/* Glass arrow button */
-#p2Next {
-  margin-top: 38px;
-  width: 68px;
-  height: 68px;
+/* Next arrow button – transparent, black border, white arrow */
+#phase2Next {
+  margin-top: 32px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(12px);
-  transition: 0.55s ease;
 
-  background: rgba(255,255,255,0.14);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid rgba(0, 0, 0, 0.9);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 
-  border: 1px solid rgba(255,255,255,0.28);
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 600;
 
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
 
-  box-shadow:
-    0 12px 32px rgba(0,0,0,0.55),
-    0 0 22px rgba(140,180,255,0.32);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
-#p2Next.visible {
+#phase2Next.visible {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
 
-#p2Next:hover {
-  background: rgba(255,255,255,0.22);
-  box-shadow:
-    0 10px 26px rgba(0,0,0,0.55),
-    0 0 28px rgba(150,200,255,0.5);
+#phase2Next:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 
-#p2Next:active {
+#phase2Next:active {
   transform: translateY(3px);
-  box-shadow: 0 6px 22px rgba(0,0,0,0.65);
-}
-
-/* Arrow symbol */
-#p2Next .arrow {
-  font-size: 28px;
-  color: #fff;
-  font-weight: 600;
-  filter: drop-shadow(0 0 4px rgba(255,255,255,0.35));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
 }
 
 /* Small phones */
 @media (max-width: 380px) {
-  #p2Text {
+  #phase2Text {
     max-width: 86vw;
     font-size: clamp(18px, 5vw, 26px);
   }
 
-  #p2Next {
-    width: 60px;
-    height: 60px;
+  #phase2Next {
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
   }
 }
