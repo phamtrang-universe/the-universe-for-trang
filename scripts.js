@@ -1,21 +1,19 @@
 /* ==========================================================
-   Universe for Trang — Phase 1
-   High-end 2D cinematic space:
-   - Deep gradient background
-   - Moving nebula
-   - Layered starfield
-   - Typewriter text + next arrow
+   Phase 1 — Premium Scorpius Connect Reveal
+   - Soft glow stars
+   - Smooth line drawing (easing)
+   - Breathing aura
+   - Cinematic typewriter
 ========================================================== */
 
-/* ---------- DOM references ---------- */
-const canvas = document.getElementById("phase1Background");
+const canvas = document.getElementById("p1Canvas");
 const ctx = canvas.getContext("2d");
 
-const textEl = document.getElementById("phase1Text");
-const nextBtn = document.getElementById("phase1Next");
+const textEl = document.getElementById("p1Text");
+const nextEl = document.getElementById("p1Next");
 
-/* ---------- Resize canvas (HiDPI) ---------- */
-function resizeCanvas() {
+/* ---------- Resize ---------- */
+function resize() {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
 
@@ -24,235 +22,184 @@ function resizeCanvas() {
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+resize();
+window.addEventListener("resize", resize);
 
 /* ==========================================================
-   STARFIELD + NEBULA BACKGROUND
+   CONSTELLATION POINTS (normalized)
 ========================================================== */
 
-const FAR_STAR_COUNT = 260;
-const NEAR_STAR_COUNT = 120;
-let farStars = [];
-let nearStars = [];
+const SCORPIUS = [
+  { x: 0.32, y: 0.22 },
+  { x: 0.42, y: 0.32 },
+  { x: 0.51, y: 0.40 },
+  { x: 0.55, y: 0.50 },
+  { x: 0.48, y: 0.62 },
+  { x: 0.42, y: 0.75 },
+  { x: 0.53, y: 0.83 }
+];
 
-/* Initialize star layers */
-function initStars() {
-  farStars = [];
-  nearStars = [];
+let pts = [];
 
+function convertPoints() {
   const w = canvas.clientWidth || window.innerWidth;
   const h = canvas.clientHeight || window.innerHeight;
 
-  for (let i = 0; i < FAR_STAR_COUNT; i++) {
-    farStars.push({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      baseRadius: 0.5 + Math.random() * 0.8,
-      twinklePhase: Math.random() * Math.PI * 2,
-      driftY: 0.02 + Math.random() * 0.08
-    });
-  }
-
-  for (let i = 0; i < NEAR_STAR_COUNT; i++) {
-    nearStars.push({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      baseRadius: 0.9 + Math.random() * 1.4,
-      twinklePhase: Math.random() * Math.PI * 2,
-      driftY: 0.03 + Math.random() * 0.12
-    });
-  }
+  pts = SCORPIUS.map(p => ({
+    x: p.x * w,
+    y: p.y * h
+  }));
 }
-initStars();
+convertPoints();
 
-/* Draw animated background: gradient + nebula + stars */
-function drawBackground(time) {
-  const w = canvas.clientWidth || window.innerWidth;
-  const h = canvas.clientHeight || window.innerHeight;
+/* ==========================================================
+   ANIMATION STATE
+========================================================== */
 
-  /* 1) Deep vertical gradient base */
+let reveal = 0;                // 0 → 1 for full constellation
+let speed = 0.004;             // reveal speed
+let t0 = performance.now();
+
+let nextShown = false;
+
+/* ==========================================================
+   DRAWING
+========================================================== */
+
+function drawBackground() {
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "#05031f");
-  g.addColorStop(0.35, "#05041e");
-  g.addColorStop(0.7, "#030117");
+  g.addColorStop(0, "#07041f");
   g.addColorStop(1, "#020013");
+
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
+}
 
-  /* 2) Nebula layers (soft, moving) */
-  const t = time * 0.001;
+function drawAura(t) {
+  const c = pts[Math.floor(pts.length / 2)];
+  const r = canvas.width * 0.25 * reveal;
 
-  function nebula(cx, cy, baseR, colorStops, offsetX, offsetY, pulseSpeed) {
-    const pulse = 0.85 + 0.25 * Math.sin(t * pulseSpeed);
-    const r = baseR * pulse;
+  const breath = 0.8 + 0.2 * Math.sin(t * 0.0018);
 
-    const x = cx + offsetX * Math.cos(t * 0.15);
-    const y = cy + offsetY * Math.sin(t * 0.12);
+  const grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, r * breath);
+  grad.addColorStop(0, "rgba(160,200,255,0.25)");
+  grad.addColorStop(1, "rgba(0,0,0,0)");
 
-    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-    colorStops.forEach(stop => {
-      grad.addColorStop(stop.offset, stop.color);
-    });
-    ctx.fillStyle = grad;
-    ctx.fillRect(x - r, y - r, r * 2, r * 2);
-  }
+  ctx.fillStyle = grad;
+  ctx.fillRect(c.x - r, c.y - r, r * 2, r * 2);
+}
 
-  // Main violet nebula
-  nebula(
-    w * 0.3, h * 0.4, Math.max(w, h) * 0.7,
-    [
-      { offset: 0.0, color: "rgba(190,160,255,0.45)" },
-      { offset: 0.4, color: "rgba(110,90,220,0.35)" },
-      { offset: 1.0, color: "rgba(5,3,30,0.0)" }
-    ],
-    18, 12, 0.35
-  );
+function drawStars(t) {
+  pts.forEach((p, i) => {
+    const progress = Math.min(1, reveal * pts.length - i);
+    if (progress <= 0) return;
 
-  // Teal nebula
-  nebula(
-    w * 0.75, h * 0.25, Math.max(w, h) * 0.6,
-    [
-      { offset: 0.0, color: "rgba(145,230,255,0.40)" },
-      { offset: 0.5, color: "rgba(60,150,200,0.32)" },
-      { offset: 1.0, color: "rgba(5,8,25,0.0)" }
-    ],
-    -22, 16, 0.28
-  );
+    const pulse = 0.6 + 0.4 * Math.sin(t * 0.003 + i);
+    const size = (4 + pulse * 3) * progress;
 
-  // Magenta glow near center
-  nebula(
-    w * 0.55, h * 0.62, Math.max(w, h) * 0.5,
-    [
-      { offset: 0.0, color: "rgba(255,160,230,0.38)" },
-      { offset: 0.4, color: "rgba(180,90,180,0.28)" },
-      { offset: 1.0, color: "rgba(5,3,20,0.0)" }
-    ],
-    10, -18, 0.42
-  );
-
-  /* 3) Far stars (tiny, soft) */
-  ctx.save();
-  ctx.globalAlpha = 0.9;
-  for (let s of farStars) {
-    s.y += s.driftY;
-    if (s.y > h + 4) s.y = -4;
-
-    const tw = 0.4 + 0.6 * Math.abs(Math.sin(time * 0.0013 + s.twinklePhase));
-    const r = s.baseRadius * tw;
-
+    // Glow
     ctx.beginPath();
-    ctx.fillStyle = "rgba(230,230,255,0.9)";
-    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${0.12 * progress})`;
+    ctx.arc(p.x, p.y, size * 2.2, 0, Math.PI * 2);
     ctx.fill();
-  }
-  ctx.restore();
 
-  /* 4) Near stars (brighter, slightly bigger) */
-  ctx.save();
-  for (let s of nearStars) {
-    s.y += s.driftY;
-    if (s.y > h + 6) s.y = -6;
-
-    const tw = 0.6 + 0.4 * Math.abs(Math.sin(time * 0.0016 + s.twinklePhase));
-    const r = s.baseRadius * tw;
-
-    // core
+    // Core star
     ctx.beginPath();
     ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
     ctx.fill();
+  });
+}
 
-    // soft halo
-    const haloR = r * 3.5;
-    const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, haloR);
-    grad.addColorStop(0, "rgba(255,255,255,0.35)");
-    grad.addColorStop(1, "rgba(255,255,255,0.0)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(s.x - haloR, s.y - haloR, haloR * 2, haloR * 2);
+function drawLines() {
+  ctx.strokeStyle = "rgba(255,255,255,0.82)";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p = reveal * pts.length;
+
+    if (i + 1 <= p) {
+      ctx.moveTo(pts[i].x, pts[i].y);
+
+      if (i + 1 < p) {
+        ctx.lineTo(pts[i + 1].x, pts[i + 1].y);
+      } else {
+        // partial segment
+        const k = p - i;
+        const x = pts[i].x + (pts[i + 1].x - pts[i].x) * k;
+        const y = pts[i].y + (pts[i + 1].y - pts[i].y) * k;
+
+        ctx.lineTo(x, y);
+      }
+    }
   }
-  ctx.restore();
+  ctx.stroke();
 }
-
-/* Animation loop for background */
-function animateBackground(time) {
-  drawBackground(time);
-  requestAnimationFrame(animateBackground);
-}
-requestAnimationFrame(animateBackground);
 
 /* ==========================================================
-   PHASE 1 TEXT: TYPEWRITER
+   MAIN LOOP
 ========================================================== */
 
-const phase1Line =
-  "Before the universe says anything, it just quietly breathes in the dark.";
+function animate(t) {
+  drawBackground();
 
-let typingIndex = 0;
-let typingTimer = null;
-let isTyping = false;
+  reveal = Math.min(1, reveal + speed);
 
-function startPhase1Text() {
-  if (typingTimer) clearInterval(typingTimer);
-  textEl.textContent = "";
-  typingIndex = 0;
-  isTyping = true;
+  drawAura(t);
+  drawStars(t);
+  drawLines();
 
-  nextBtn.classList.remove("visible");
-  nextBtn.style.pointerEvents = "none";
+  if (reveal === 1 && !nextShown) {
+    nextShown = true;
+    setTimeout(() => {
+      nextEl.classList.add("visible");
+    }, 400);
+  }
 
-  const baseSpeed = 42;    // ms per character
-  const punctPause = 260;  // pause after punctuation
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
 
-  function step() {
-    if (typingIndex > phase1Line.length) {
-      clearInterval(typingTimer);
-      isTyping = false;
+/* ==========================================================
+   TYPEWRITER TEXT
+========================================================== */
 
-      setTimeout(() => {
-        nextBtn.classList.add("visible");
-        nextBtn.style.pointerEvents = "auto";
-      }, 350);
+const line =
+  "Before anything shines in the universe, Scorpius breathes first.";
+
+let index = 0;
+let typing = true;
+
+function typewriter() {
+  const speed = 42;
+
+  const timer = setInterval(() => {
+    if (index >= line.length) {
+      clearInterval(timer);
+      typing = false;
       return;
     }
 
-    const ch = phase1Line.charAt(typingIndex);
-    textEl.textContent = phase1Line.slice(0, typingIndex + 1);
-    typingIndex++;
+    const ch = line[index];
+    textEl.textContent = line.slice(0, index + 1);
+    index++;
 
     if (/[.,!?]/.test(ch)) {
-      clearInterval(typingTimer);
-      typingTimer = setInterval(step, punctPause);
+      clearInterval(timer);
+      setTimeout(typewriter, 260);
     }
-  }
-
-  typingTimer = setInterval(step, baseSpeed);
+  }, speed);
 }
+typewriter();
 
-/* Clicking next during typing: skip to full text */
-nextBtn.addEventListener("click", () => {
-  if (isTyping) {
-    if (typingTimer) clearInterval(typingTimer);
-    textEl.textContent = phase1Line;
-    isTyping = false;
+/* ==========================================================
+   NEXT BUTTON
+========================================================== */
 
-    setTimeout(() => {
-      nextBtn.classList.add("visible");
-      nextBtn.style.pointerEvents = "auto";
-    }, 150);
-    return;
-  }
-
-  // TODO: here we will hook Phase 2 later
-  console.log("Phase 1 finished → go to Phase 2 (placeholder)");
+nextEl.addEventListener("click", () => {
+  console.log("Phase 1 finished → go to Phase 2");
 });
-
-/* Also allow tapping text to trigger next when arrow is visible */
-textEl.addEventListener("click", () => {
-  if (!isTyping && nextBtn.classList.contains("visible")) {
-    nextBtn.click();
-  }
-});
-
-/* Start Phase 1 text on load */
-startPhase1Text();
