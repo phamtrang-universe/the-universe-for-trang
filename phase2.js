@@ -3,18 +3,18 @@
    - Deep nebula background
    - Starfield twinkling
    - Scorpius fully formed, gently rotating
-   - Soft aura + tiny meteors behind
-   - Typewriter text + glass arrow
+   - Soft aura + occasional meteors
+   - Typewriter text + transparent next arrow
 ========================================================== */
 
-const canvas = document.getElementById("p2Canvas");
+const canvas = document.getElementById("phase2Canvas");
 const ctx = canvas.getContext("2d");
 
-const textEl = document.getElementById("p2Text");
-const nextEl = document.getElementById("p2Next");
+const textEl = document.getElementById("phase2Text");
+const nextEl = document.getElementById("phase2Next");
 
 /* ---------- Resize ---------- */
-function resize() {
+function resizePhase2() {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
 
@@ -23,9 +23,9 @@ function resize() {
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-resize();
+resizePhase2();
 window.addEventListener("resize", () => {
-  resize();
+  resizePhase2();
   convertPoints();
   initStars();
 });
@@ -44,7 +44,7 @@ const SCORPIUS = [
   { x: 0.53, y: 0.83 }
 ];
 
-let basePts = [];   // fixed coordinates
+let basePts = [];
 let centroid = { x: 0, y: 0 };
 
 function convertPoints() {
@@ -56,7 +56,6 @@ function convertPoints() {
     y: p.y * h
   }));
 
-  // compute centroid
   let sx = 0, sy = 0;
   basePts.forEach(p => {
     sx += p.x;
@@ -119,7 +118,6 @@ function drawBackground(time) {
 
   const t = time * 0.001;
 
-  // Nebula helper
   function nebula(cx, cy, baseR, stops, offsetX, offsetY, speed) {
     const pulse = 0.85 + 0.2 * Math.sin(t * speed);
     const r = baseR * pulse;
@@ -140,9 +138,9 @@ function drawBackground(time) {
   nebula(
     w * 0.25, h * 0.35, maxDim * 0.75,
     [
-      { offset: 0, color: "rgba(190,160,255,0.45)" },
-      { offset: 0.45, color: "rgba(120,90,220,0.36)" },
-      { offset: 1, color: "rgba(3,2,20,0)" }
+      { offset: 0,   color: "rgba(190,160,255,0.45)" },
+      { offset: 0.45,color: "rgba(120,90,220,0.36)" },
+      { offset: 1,   color: "rgba(3,2,20,0)" }
     ],
     20, 12, 0.35
   );
@@ -151,9 +149,9 @@ function drawBackground(time) {
   nebula(
     w * 0.78, h * 0.25, maxDim * 0.65,
     [
-      { offset: 0, color: "rgba(145,230,255,0.40)" },
+      { offset: 0,   color: "rgba(145,230,255,0.40)" },
       { offset: 0.5, color: "rgba(60,150,200,0.3)" },
-      { offset: 1, color: "rgba(2,4,20,0)" }
+      { offset: 1,   color: "rgba(2,4,20,0)" }
     ],
     -22, 14, 0.28
   );
@@ -162,9 +160,9 @@ function drawBackground(time) {
   nebula(
     w * 0.55, h * 0.6, maxDim * 0.55,
     [
-      { offset: 0, color: "rgba(255,160,230,0.38)" },
+      { offset: 0,   color: "rgba(255,160,230,0.38)" },
       { offset: 0.5, color: "rgba(180,90,180,0.28)" },
-      { offset: 1, color: "rgba(3,2,20,0)" }
+      { offset: 1,   color: "rgba(3,2,20,0)" }
     ],
     10, -18, 0.42
   );
@@ -280,10 +278,11 @@ function drawScorpius(time) {
 }
 
 /* ==========================================================
-   METEORS (BEHIND CONSTELLATION)
+   METEORS
 ========================================================== */
 
 let meteors = [];
+let lastMeteorTime = 0;
 
 function spawnMeteor() {
   const w = canvas.clientWidth || window.innerWidth;
@@ -298,8 +297,6 @@ function spawnMeteor() {
     maxLife: 2000 + Math.random() * 1200
   });
 }
-
-let lastMeteorTime = 0;
 
 function drawMeteors(delta) {
   const now = performance.now();
@@ -317,8 +314,9 @@ function drawMeteors(delta) {
     const lifeRatio = 1 - m.life / m.maxLife;
     if (lifeRatio <= 0) return false;
 
-    // Tail
     ctx.save();
+
+    // Tail
     ctx.globalAlpha = 0.35 * lifeRatio;
     ctx.strokeStyle = "rgba(180,220,255,0.9)";
     ctx.lineWidth = 1.4;
@@ -333,8 +331,8 @@ function drawMeteors(delta) {
     ctx.fillStyle = "#ffffff";
     ctx.arc(m.x, m.y, 2.6, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore();
 
+    ctx.restore();
     return true;
   });
 }
@@ -345,7 +343,7 @@ function drawMeteors(delta) {
 
 let lastTime = performance.now();
 
-function animate(time) {
+function animatePhase2(time) {
   const delta = time - lastTime;
   lastTime = time;
 
@@ -353,32 +351,32 @@ function animate(time) {
   drawScorpius(time);
   drawMeteors(delta);
 
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animatePhase2);
 }
-requestAnimationFrame(animate);
+requestAnimationFrame(animatePhase2);
 
 /* ==========================================================
    TYPEWRITER TEXT
 ========================================================== */
 
-const line =
+const phase2Line =
   "Now your Scorpius is fully awake, quietly turning in the middle of its own galaxy.";
 
-let index = 0;
+let idx = 0;
 let typingDone = false;
 
-function startTyping() {
+function startPhase2Text() {
   const baseSpeed = 42;
 
   function step() {
-    if (index > line.length) {
+    if (idx > phase2Line.length) {
       typingDone = true;
       return;
     }
 
-    const ch = line[index];
-    textEl.textContent = line.slice(0, index + 1);
-    index++;
+    const ch = phase2Line[idx];
+    textEl.textContent = phase2Line.slice(0, idx + 1);
+    idx++;
 
     const delay = /[.,!?]/.test(ch) ? 260 : baseSpeed;
     setTimeout(step, delay);
@@ -386,18 +384,17 @@ function startTyping() {
 
   step();
 }
-startTyping();
+startPhase2Text();
 
 /* ==========================================================
-   NEXT BUTTON (placeholder hook to Phase 3)
+   NEXT BUTTON (placeholder for Phase 3)
 ========================================================== */
 
-let nextVisible = false;
 setTimeout(() => {
-  nextVisible = true;
   nextEl.classList.add("visible");
-}, 2600); // a bit after text starts
+}, 2600);
 
 nextEl.addEventListener("click", () => {
-  console.log("Phase 2 finished → go to Phase 3");
+  console.log("Phase 2 finished → ready for Phase 3");
+  // sau này: window.location.href = "phase3.html";
 });
