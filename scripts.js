@@ -1,8 +1,8 @@
 /* ==========================================================
-   Universe for Trang – Single page, 3 phases
-   Phase 1: Nebula + starfield + line 1
-   Phase 2: Scorpius reveal (connect lines) + line 2
-   Phase 3: Scorpius in motion + meteors + line 3
+   Universe for Trang – 3 phases in 1 page
+   Phase 1: Nebula + starfield + romantic line 1
+   Phase 2: Interactive – tap stars to draw Scorpius + line 2
+   Phase 3: Scorpius in motion + meteors + climax line 3
 ========================================================== */
 
 /* ---------- DOM references ---------- */
@@ -30,7 +30,7 @@ window.addEventListener("resize", () => {
 });
 
 /* ==========================================================
-   GLOBAL STARFIELD + NEBULA (dùng chung cả 3 phase)
+   STARFIELD + NEBULA (shared for all phases)
 ========================================================== */
 
 const FAR_STAR_COUNT = 260;
@@ -71,7 +71,6 @@ function drawBackground(time) {
   const w = canvas.clientWidth || window.innerWidth;
   const h = canvas.clientHeight || window.innerHeight;
 
-  /* 1) Deep vertical gradient base */
   const g = ctx.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0, "#05031f");
   g.addColorStop(0.35, "#05041e");
@@ -80,7 +79,6 @@ function drawBackground(time) {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
 
-  /* 2) Nebula layers (soft, moving) */
   const t = time * 0.001;
 
   function nebula(cx, cy, baseR, colorStops, offsetX, offsetY, pulseSpeed) {
@@ -91,16 +89,13 @@ function drawBackground(time) {
     const y = cy + offsetY * Math.sin(t * 0.12);
 
     const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-    colorStops.forEach(stop => {
-      grad.addColorStop(stop.offset, stop.color);
-    });
+    colorStops.forEach(stop => grad.addColorStop(stop.offset, stop.color));
     ctx.fillStyle = grad;
     ctx.fillRect(x - r, y - r, r * 2, r * 2);
   }
 
   const maxDim = Math.max(w, h);
 
-  // Main violet nebula
   nebula(
     w * 0.3, h * 0.4, maxDim * 0.7,
     [
@@ -111,7 +106,6 @@ function drawBackground(time) {
     18, 12, 0.35
   );
 
-  // Teal nebula
   nebula(
     w * 0.75, h * 0.25, maxDim * 0.6,
     [
@@ -122,7 +116,6 @@ function drawBackground(time) {
     -22, 16, 0.28
   );
 
-  // Magenta glow near center
   nebula(
     w * 0.55, h * 0.62, maxDim * 0.5,
     [
@@ -133,7 +126,6 @@ function drawBackground(time) {
     10, -18, 0.42
   );
 
-  /* 3) Far stars (tiny, soft) */
   ctx.save();
   ctx.globalAlpha = 0.9;
   for (let s of farStars) {
@@ -150,7 +142,6 @@ function drawBackground(time) {
   }
   ctx.restore();
 
-  /* 4) Near stars (brighter, slightly bigger) */
   ctx.save();
   for (let s of nearStars) {
     s.y += s.driftY;
@@ -159,13 +150,11 @@ function drawBackground(time) {
     const tw = 0.6 + 0.4 * Math.abs(Math.sin(time * 0.0016 + s.twinklePhase));
     const r = s.baseRadius * tw;
 
-    // core
     ctx.beginPath();
     ctx.fillStyle = "rgba(255,255,255,0.95)";
     ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
     ctx.fill();
 
-    // soft halo
     const haloR = r * 3.5;
     const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, haloR);
     grad.addColorStop(0, "rgba(255,255,255,0.35)");
@@ -197,10 +186,14 @@ function convertConstellationPoints() {
   const w = canvas.clientWidth || window.innerWidth;
   const h = canvas.clientHeight || window.innerHeight;
 
-  basePts = SCORPIUS.map(p => ({
-    x: p.x * w,
-    y: p.y * h
-  }));
+  // đẩy chòm sao lệch sang trái một chút để không trùng trục giữa
+  basePts = SCORPIUS.map(p => {
+    const nx = (p.x - 0.5) * 0.8 + 0.38; // scale + shift left
+    return {
+      x: nx * w,
+      y: p.y * h
+    };
+  });
 
   let sx = 0, sy = 0;
   basePts.forEach(p => {
@@ -212,15 +205,72 @@ function convertConstellationPoints() {
 }
 convertConstellationPoints();
 
-/* --- Phase 2: reveal state --- */
-let reveal = 0;               // 0 → 1
-const revealSpeed = 0.004;
+/* Phase 2 – interactive tap progress */
+let tapProgress = 0;       // số sao đã chạm đúng
+let interactiveDone = false;
 
-/* --- Phase 3: meteors --- */
-let meteors = [];
-let lastMeteorTime = 0;
+/* Phase 2 & 3 share these helpers */
 
-/* rotation for phase 3 */
+function drawScorpiusRevealInteractive(time) {
+  const pts = basePts;
+  const t = time * 0.001;
+
+  const revealed = tapProgress; // số điểm đã mở
+
+  const maxR = (canvas.clientWidth || window.innerWidth) * 0.24;
+  const pulse = 0.8 + 0.2 * Math.sin(t * 1.6);
+  const r = maxR * pulse;
+
+  const grad = ctx.createRadialGradient(centroid.x, centroid.y, 0, centroid.x, centroid.y, r);
+  grad.addColorStop(0, "rgba(160,200,255,0.25)");
+  grad.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(centroid.x - r, centroid.y - r, r * 2, r * 2);
+
+  // lines theo tiến độ chạm
+  ctx.strokeStyle = "rgba(255,255,255,0.85)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+
+  const p = revealed;
+  for (let i = 0; i < pts.length - 1; i++) {
+    if (i + 1 <= p) {
+      ctx.moveTo(pts[i].x, pts[i].y);
+      if (i + 1 < p) {
+        ctx.lineTo(pts[i + 1].x, pts[i + 1].y);
+      } else {
+        const k = Math.min(1, p - i);
+        const x = pts[i].x + (pts[i + 1].x - pts[i].x) * k;
+        const y = pts[i].y + (pts[i + 1].y - pts[i].y) * k;
+        ctx.lineTo(x, y);
+      }
+    }
+  }
+  ctx.stroke();
+
+  // stars: những sao đã chạm + sao kế tiếp sẽ glow mạnh hơn
+  pts.forEach((pt, i) => {
+    let strength = 0.2;
+    if (i < tapProgress) strength = 1;
+    else if (i === tapProgress) strength = 0.6;
+
+    const pulseStar = 0.6 + 0.4 * Math.sin(t * 2 + i);
+    const size = 4 + pulseStar * 3 * strength;
+
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255,255,255,${0.16 * strength})`;
+    ctx.arc(pt.x, pt.y, size * 2.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = "rgba(255,255,255,0.97)";
+    ctx.arc(pt.x, pt.y, size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+/* Phase 3 – rotation + meteors */
+
 function rotatedPoints(time) {
   const t = time * 0.001;
   const angle = 0.08 * Math.sin(t * 0.4);
@@ -237,70 +287,9 @@ function rotatedPoints(time) {
   });
 }
 
-/* --- Phase 2: reveal drawing --- */
-function drawScorpiusReveal(time) {
-  reveal = Math.min(1, reveal + revealSpeed);
+let meteors = [];
+let lastMeteorTime = 0;
 
-  const pts = basePts;
-  const t = time * 0.001;
-
-  // aura (nhẹ hơn phase 3)
-  const maxR = (canvas.clientWidth || window.innerWidth) * 0.25;
-  const pulse = 0.8 + 0.2 * Math.sin(t * 1.6);
-  const r = maxR * pulse;
-
-  const grad = ctx.createRadialGradient(centroid.x, centroid.y, 0, centroid.x, centroid.y, r);
-  grad.addColorStop(0, "rgba(160,200,255,0.25)");
-  grad.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(centroid.x - r, centroid.y - r, r * 2, r * 2);
-
-  // stars
-  pts.forEach((p, i) => {
-    const progress = Math.min(1, reveal * pts.length - i);
-    if (progress <= 0) return;
-
-    const pulseStar = 0.6 + 0.4 * Math.sin(t * 2 + i);
-    const size = (4 + pulseStar * 3) * progress;
-
-    // glow
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(255,255,255,${0.14 * progress})`;
-    ctx.arc(p.x, p.y, size * 2.4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // core
-    ctx.beginPath();
-    ctx.fillStyle = "rgba(255,255,255,0.97)";
-    ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  // lines
-  ctx.strokeStyle = "rgba(255,255,255,0.85)";
-  ctx.lineWidth = 2;
-
-  ctx.beginPath();
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p = reveal * pts.length;
-
-    if (i + 1 <= p) {
-      ctx.moveTo(pts[i].x, pts[i].y);
-
-      if (i + 1 < p) {
-        ctx.lineTo(pts[i + 1].x, pts[i + 1].y);
-      } else {
-        const k = p - i;
-        const x = pts[i].x + (pts[i + 1].x - pts[i].x) * k;
-        const y = pts[i].y + (pts[i + 1].y - pts[i].y) * k;
-        ctx.lineTo(x, y);
-      }
-    }
-  }
-  ctx.stroke();
-}
-
-/* --- Phase 3: meteors --- */
 function spawnMeteor() {
   const w = canvas.clientWidth || window.innerWidth;
   const h = canvas.clientHeight || window.innerHeight;
@@ -318,7 +307,7 @@ function spawnMeteor() {
 function drawMeteors(delta) {
   const now = performance.now();
 
-  if (now - lastMeteorTime > 2800 + Math.random() * 1800) {
+  if (now - lastMeteorTime > 2600 + Math.random() * 1800) {
     spawnMeteor();
     lastMeteorTime = now;
   }
@@ -352,7 +341,6 @@ function drawMeteors(delta) {
   });
 }
 
-/* --- Phase 3: scorpius in motion --- */
 function drawScorpiusMotion(time, delta) {
   const pts = rotatedPoints(time);
   const t = time * 0.001;
@@ -362,13 +350,12 @@ function drawScorpiusMotion(time, delta) {
   const r = maxR * pulse;
 
   const grad = ctx.createRadialGradient(centroid.x, centroid.y, 0, centroid.x, centroid.y, r);
-  grad.addColorStop(0, "rgba(160,200,255,0.27)");
+  grad.addColorStop(0, "rgba(200,220,255,0.3)");
   grad.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = grad;
   ctx.fillRect(centroid.x - r, centroid.y - r, r * 2, r * 2);
 
-  // lines
-  ctx.strokeStyle = "rgba(255,255,255,0.88)";
+  ctx.strokeStyle = "rgba(255,255,255,0.9)";
   ctx.lineWidth = 2;
   ctx.beginPath();
   for (let i = 0; i < pts.length - 1; i++) {
@@ -377,13 +364,12 @@ function drawScorpiusMotion(time, delta) {
   }
   ctx.stroke();
 
-  // stars
   pts.forEach((p, i) => {
     const pulseStar = 0.6 + 0.4 * Math.sin(t * 2 + i);
     const size = 4 + pulseStar * 3;
 
     ctx.beginPath();
-    ctx.fillStyle = "rgba(255,255,255,0.2)";
+    ctx.fillStyle = "rgba(255,255,255,0.22)";
     ctx.arc(p.x, p.y, size * 2.6, 0, Math.PI * 2);
     ctx.fill();
 
@@ -401,11 +387,17 @@ function drawScorpiusMotion(time, delta) {
 ========================================================== */
 
 let currentPhase = 1;
+
+// text cho từng phase
 const phaseLines = [
-  "Before the universe says anything, it just quietly breathes in the dark.",
-  "Then Scorpius arrives, drawing itself out of the silence, point by point.",
-  "Now your Scorpius is fully awake, quietly turning in the middle of its own galaxy."
+  "Tonight the universe is quiet, breathing softly in the dark.",
+  "Touch each glowing star to trace the shape of Scorpius.",
+  "Now all of Scorpius turns for you alone, in a sky that never runs out of stars."
 ];
+
+// câu thay thế sau khi vẽ xong chòm sao
+const phase2CompletedLine =
+  "Every line you drew here is a tiny orbit, circling quietly around you.";
 
 let typingIndex = 0;
 let typingTimer = null;
@@ -430,10 +422,14 @@ function startPhaseText(phase) {
       clearInterval(typingTimer);
       isTyping = false;
 
-      setTimeout(() => {
-        nextBtn.classList.add("visible");
-        nextBtn.style.pointerEvents = "auto";
-      }, 350);
+      // Phase 2: không hiện mũi tên ngay,
+      // chỉ hiện sau khi người dùng nối xong chòm sao
+      if (phase !== 2) {
+        setTimeout(() => {
+          nextBtn.classList.add("visible");
+          nextBtn.style.pointerEvents = "auto";
+        }, 350);
+      }
       return;
     }
 
@@ -450,27 +446,29 @@ function startPhaseText(phase) {
   typingTimer = setInterval(step, baseSpeed);
 }
 
-/* Phase change handler */
+/* chuyển phase khi bấm mũi tên */
 function goToNextPhase() {
   if (isTyping) {
-    // skip typing
+    // skip typing → hiện full câu
     if (typingTimer) clearInterval(typingTimer);
     textEl.textContent = phaseLines[currentPhase - 1];
     isTyping = false;
 
-    setTimeout(() => {
-      nextBtn.classList.add("visible");
-      nextBtn.style.pointerEvents = "auto";
-    }, 150);
+    if (currentPhase !== 2) {
+      setTimeout(() => {
+        nextBtn.classList.add("visible");
+        nextBtn.style.pointerEvents = "auto";
+      }, 150);
+    }
     return;
   }
 
   if (currentPhase < 3) {
     currentPhase++;
 
-    // reset states for new phases
     if (currentPhase === 2) {
-      reveal = 0;
+      tapProgress = 0;
+      interactiveDone = false;
     }
     if (currentPhase === 3) {
       meteors = [];
@@ -479,7 +477,6 @@ function goToNextPhase() {
 
     startPhaseText(currentPhase);
   } else {
-    // Phase 3 finished – có thể ẩn nút hoặc giữ nguyên
     console.log("All 3 phases completed.");
     nextBtn.classList.remove("visible");
     nextBtn.style.pointerEvents = "none";
@@ -490,6 +487,48 @@ nextBtn.addEventListener("click", goToNextPhase);
 textEl.addEventListener("click", () => {
   if (!isTyping && nextBtn.classList.contains("visible")) {
     goToNextPhase();
+  }
+});
+
+/* ==========================================================
+   PHASE 2 – TAP HANDLER
+========================================================== */
+
+canvas.addEventListener("pointerdown", e => {
+  if (currentPhase !== 2 || interactiveDone) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  const target = basePts[tapProgress];
+  const dist = Math.hypot(x - target.x, y - target.y);
+
+  const threshold = 32;
+  if (dist < threshold) {
+    tapProgress++;
+
+    if (tapProgress >= basePts.length) {
+      interactiveDone = true;
+
+      // đổi text phase 2 sang câu lãng mạn hơn
+      textEl.textContent = "";
+      let i = 0;
+      const line = phase2CompletedLine;
+      function typeCompleted() {
+        if (i <= line.length) {
+          textEl.textContent = line.slice(0, i + 1);
+          i++;
+          setTimeout(typeCompleted, 42);
+        } else {
+          setTimeout(() => {
+            nextBtn.classList.add("visible");
+            nextBtn.style.pointerEvents = "auto";
+          }, 350);
+        }
+      }
+      typeCompleted();
+    }
   }
 });
 
@@ -506,7 +545,7 @@ function animate(time) {
   drawBackground(time);
 
   if (currentPhase === 2) {
-    drawScorpiusReveal(time);
+    drawScorpiusRevealInteractive(time);
   } else if (currentPhase === 3) {
     drawScorpiusMotion(time, delta);
   }
