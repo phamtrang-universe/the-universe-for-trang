@@ -6,24 +6,25 @@
 
   <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+
   <meta name="theme-color" content="#020118" />
 
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="phase1.css" />
 </head>
 <body>
 
-  <!-- Cinematic space background -->
-  <canvas id="phase1Background" aria-label="Cinematic space background"></canvas>
+  <!-- Reveal Scorpius -->
+  <canvas id="p1Canvas"></canvas>
 
-  <!-- Centered text + next arrow -->
-  <div id="phase1UI">
-    <div id="phase1Text"></div>
+  <!-- UI text + next -->
+  <div id="p1UI">
+    <div id="p1Text"></div>
 
-    <button id="phase1Next" aria-label="Next">
-      →
+    <button id="p1Next" aria-label="Next phase">
+      <span class="arrow">→</span>
     </button>
   </div>
 
-  <script src="scripts.js" defer></script>
+  <script src="phase1.js" defer></script>
 </body>
 </html>
