@@ -12,11 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainJourney = document.getElementById('main-journey');
     const bgMusic = document.getElementById('bg-music');
     
-    const finalImg = document.getElementById('final-constellation-img');
     const finalTitle = document.getElementById('final-title');
     const finalSubtitle = document.getElementById('final-subtitle');
 
-    // --- VARIABLES ---
     let introCtx = introCanvas.getContext('2d');
     let w, h;
     let stars = [];
@@ -25,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let drawState = {
         started: false, completed: false, progress: 0, 
-        speed: 0.05 // TỐC ĐỘ VẼ NHANH HƠN (Cũ 0.025)
+        speed: 0.04 // Tốc độ vẽ dây 1.5x (Vừa phải)
     };
 
     // 1. MẬT MÃ
@@ -45,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => openingScreen.classList.add('visible'), 50);
             isIntroActive = true; resize(); initBackgroundStars(); renderIntro();
             
-            // Tự động chạy sau 1s
+            // Tự động vẽ sau 1s
             setTimeout(() => { drawState.started = true; }, 1000);
         }, 1200);
     }
@@ -120,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(renderIntro);
     }
 
-    // 3. GALAXY TRÀN VIỀN & NHANH
+    // 3. GALAXY TRÀN VIỀN & TỐC ĐỘ 1.5X
     let mainCanvas = document.getElementById('main-canvas');
     let mainCtx = mainCanvas.getContext('2d');
     let galaxyStars = [];
@@ -141,12 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
         resizeMainCanvas();
         window.addEventListener('resize', resizeMainCanvas);
         
-        // Tăng số lượng sao lên 2500 cho dày
         for(let i=0; i<2500; i++) galaxyStars.push(new GalaxyStar());
 
-        if(finalImg) setTimeout(() => { finalImg.style.opacity = 1; }, 500);
-        setTimeout(() => { finalTitle.style.opacity = 1; }, 1500);
-        setTimeout(() => { finalSubtitle.style.opacity = 1; }, 2500);
+        setTimeout(() => { finalTitle.style.opacity = 1; }, 1000);
+        setTimeout(() => { finalSubtitle.style.opacity = 1; }, 2000);
         renderGalaxyLoop();
     }
 
@@ -168,15 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
             this.color = colors[Math.floor(Math.random() * colors.length)];
             this.size = Math.random() * 2;
             
-            // TỐC ĐỘ XOAY: Tăng từ 0.001 lên 0.003
-            this.speed = (1 - this.distance) * 0.003 + 0.001; 
+            // TỐC ĐỘ XOAY 1.5x (Khoảng 0.002)
+            this.speed = (1 - this.distance) * 0.002 + 0.0005; 
             this.blinkSpeed = Math.random() * 0.05;
         }
         update() { this.angle += this.speed; }
         draw() {
-            // BÁN KÍNH TRÀN VIỀN:
-            // Math.max thay vì Math.min để phủ kín cả chiều dài màn hình
-            // * 0.9 để sao bay ra tận mép ngoài cùng
+            // BÁN KÍNH TRÀN VIỀN
             const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 0.9;
             const r = this.distance * maxRadius;
             
@@ -186,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const alpha = 0.5 + Math.sin(Date.now()*0.005 + this.blinkSpeed*100)*0.5;
             mainCtx.globalCompositeOperation = "lighter";
             mainCtx.fillStyle = this.color;
-            mainCtx.globalAlpha = alpha * (1 - this.distance * 0.4); // Giảm độ mờ để sao ngoài rìa vẫn sáng
+            mainCtx.globalAlpha = alpha * (1 - this.distance * 0.4); 
             mainCtx.beginPath(); mainCtx.arc(x, y, this.size, 0, Math.PI * 2); mainCtx.fill();
         }
     }
@@ -194,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderGalaxyLoop() {
         if (!journeyActive) return;
         mainCtx.globalCompositeOperation = "source-over";
-        // Giảm alpha của nền đen xuống 0.1 để tạo vệt sao dài hơn (motion blur)
         mainCtx.fillStyle = "rgba(5, 5, 16, 0.1)"; 
         mainCtx.fillRect(0, 0, window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
         galaxyStars.forEach(star => { star.update(); star.draw(); });
