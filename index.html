@@ -1,44 +1,36 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Vũ Trụ Của Trang | The Stellar Journey</title>
-  
-    <meta name="description" content="Một trải nghiệm vũ trụ điện ảnh độc quyền và lãng mạn dành cho Trang." />
-  <meta name="author" content="Your Name" /> 
-  
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#020118" />
+  <meta charset="utf-8" />
+  <title>The Universe of Trang</title>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#050510" />
 
-  <link rel="stylesheet" href="style.css" />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" as="style" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" />
-  
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-    <div id="permissionOverlay">
-    <h2>Chào mừng đến với Vũ Trụ Của Trang</h2>
-    <p>Vui lòng cho phép truy cập cảm biến chuyển động để có trải nghiệm 3D Parallax mượt mà nhất.</p>
-    <button id="startButton">BẮT ĐẦU CHUYẾN DU HÀNH</button>
-  </div>
+  <canvas id="universeCanvas"></canvas>
 
-    <main id="universe-container" style="opacity: 0;">
-        <canvas id="phase1Background" aria-label="Hình nền không gian điện ảnh" role="presentation"></canvas>
+  <div id="uiLayer">
+    <div id="textContainer">
+        <p id="mainText" class="fade-in"></p>
+    </div>
 
-        <section id="phase1UI">
-      <p id="phase1Text" aria-live="polite"></p>
+    <button id="nextBtn" class="glass-btn" aria-label="Next Phase">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
 
-      <button id="phase1Next" type="button" class="ui-nav-button" aria-label="Tiếp theo">
-        →
-      </button>
-    </section>
-  </main>
+  <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
 
-    <audio id="backgroundMusic" src="music.mp3" loop preload="auto"></audio>
-    <audio id="sfxTap" src="sfx-tap.mp3" preload="auto"></audio> 
-  
-  <script src="scripts.js" defer></script>
+  <script src="scripts.js" defer></script>
 </body>
 </html>
