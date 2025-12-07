@@ -1,29 +1,44 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="utf-8" />
-  <title>Universe for Trang</title>
+  <meta charset="utf-8" />
+  <title>Vũ Trụ Của Trang | The Stellar Journey</title>
+  
+    <meta name="description" content="Một trải nghiệm vũ trụ điện ảnh độc quyền và lãng mạn dành cho Trang." />
+  <meta name="author" content="Your Name" /> 
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#020118" />
 
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#020118" />
-
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" as="style" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" />
+  
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 <body>
 
-  <!-- Shared cinematic background canvas -->
-  <canvas id="phase1Background" aria-label="Cinematic space background"></canvas>
+    <div id="permissionOverlay">
+    <h2>Chào mừng đến với Vũ Trụ Của Trang</h2>
+    <p>Vui lòng cho phép truy cập cảm biến chuyển động để có trải nghiệm 3D Parallax mượt mà nhất.</p>
+    <button id="startButton">BẮT ĐẦU CHUYẾN DU HÀNH</button>
+  </div>
 
-  <!-- Shared UI (text + next arrow) -->
-  <div id="phase1UI">
-    <div id="phase1Text"></div>
+    <main id="universe-container" style="opacity: 0;">
+        <canvas id="phase1Background" aria-label="Hình nền không gian điện ảnh" role="presentation"></canvas>
 
-    <button id="phase1Next" aria-label="Next">
-      →
-    </button>
-  </div>
+        <section id="phase1UI">
+      <p id="phase1Text" aria-live="polite"></p>
 
-  <script src="scripts.js" defer></script>
+      <button id="phase1Next" type="button" class="ui-nav-button" aria-label="Tiếp theo">
+        →
+      </button>
+    </section>
+  </main>
+
+    <audio id="backgroundMusic" src="music.mp3" loop preload="auto"></audio>
+    <audio id="sfxTap" src="sfx-tap.mp3" preload="auto"></audio> 
+  
+  <script src="scripts.js" defer></script>
 </body>
 </html>
