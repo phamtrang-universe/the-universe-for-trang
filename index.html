@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Inter:wght@300;400&family=Parisienne&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Inter:wght@300;400&family=Parisienne&family=Pinyon+Script&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -29,25 +29,25 @@
     </section>
 
     <section id="opening-screen" class="hidden">
-        
         <div id="top-text-area">
             <h1 id="opening-title">Hello, Trang</h1>
             <p id="opening-subtitle">Watch the stars align for you...</p>
         </div>
-
         <div id="bottom-canvas-area">
             <canvas id="intro-canvas"></canvas>
         </div>
-
     </section>
 
     <main id="main-journey" class="hidden">
         <canvas id="main-canvas"></canvas>
-        <div id="journey-text-container"></div>
+        <div id="journey-text-container">
+            <img id="final-constellation-img" src="scorpio_final.png" alt="Scorpio Constellation">
+            <h1 id="final-title">My Universe</h1>
+            <p id="final-subtitle">Where you shine the brightest.</p>
+        </div>
     </main>
 
     <audio id="bg-music" src="music.mp3" loop></audio>
-
     <script src="scripts.js"></script>
 </body>
 </html>
