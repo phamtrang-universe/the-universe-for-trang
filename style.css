@@ -1,141 +1,246 @@
-/* ============================
-   GLOBAL
-============================ */
+/* ==========================================================
+   CSS VARIABLES (Tối ưu khả năng bảo trì & theme)
+========================================================== */
+:root {
+  /* Colors */
+  --color-background: #020118;
+  --color-text-light: #ffffff;
+  --color-glow-blue: rgba(150, 190, 255, 0.7);
+  
+  /* Spacing */
+  --spacing-top-ui: 18vh;
+  --spacing-btn-margin: 30px;
+  
+  /* Button Dimensions */
+  --btn-size: 68px; /* Tăng kích thước nút cho trải nghiệm mobile tốt hơn */
+  --btn-font-size: 32px;
+  
+  /* Timing */
+  --transition-duration-fast: 0.25s;
+  --transition-duration-slow: 0.45s;
+}
+
+/* ==========================================================
+   GLOBAL & BASE RESET
+========================================================== */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html, body {
-  width: 100%;
-  height: 100%;
-  background: #020118;
-  overflow: hidden;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  width: 100%;
+  height: 100%;
+  background: var(--color-background);
+  overflow: hidden;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Tối ưu hiệu suất: Báo cho trình duyệt biết body sẽ transform */
+  will-change: transform; 
 }
 
-/* ============================
-   BACKGROUND CANVAS
-============================ */
+/* ==========================================================
+   1. PERMISSION/LOADING OVERLAY (VIP Touch)
+========================================================== */
+#permissionOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--color-background);
+  color: var(--color-text-light);
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
+  padding: 20px;
+  opacity: 1;
+  transition: opacity 0.8s ease-out; /* Hiệu ứng mờ dần mượt mà */
+}
+
+#permissionOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#permissionOverlay h2 {
+  font-size: clamp(1.8rem, 7vw, 2.5rem);
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+#permissionOverlay p {
+  max-width: 80vw;
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 40px;
+}
+
+#startButton {
+  /* Kế thừa styling nút chung để đồng nhất */
+  width: 80vw;
+  max-width: 300px;
+  padding: 16px 24px;
+  border: 2px solid var(--color-glow-blue);
+  border-radius: 12px;
+  background: rgba(150, 190, 255, 0.1);
+  color: var(--color-text-light);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  transition: 
+    background var(--transition-duration-fast) ease,
+    box-shadow var(--transition-duration-fast) ease;
+
+  box-shadow: 0 0 15px rgba(150, 190, 255, 0.4);
+}
+
+#startButton:hover, #startButton:active {
+  background: rgba(150, 190, 255, 0.25);
+  box-shadow: 0 0 25px var(--color-glow-blue);
+}
+
+
+/* ==========================================================
+   2. MAIN UNIVERSE VIEW
+========================================================== */
+
+#universe-container {
+  /* Đảm bảo chuyển cảnh mượt mà khi hiện nội dung chính */
+  transition: opacity 0.8s ease-out;
+}
+
 #phase1Background {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 1;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+  will-change: transform, opacity;
 }
 
-/* ============================
-   UI LAYER
-   (text + arrow, cố ý đẩy cao lên
-   để không đè giữa chòm sao)
-============================ */
+/* ==========================================================
+   3. UI LAYER (Text + Arrow)
+========================================================== */
 #phase1UI {
-  position: fixed;
-  inset: 0;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  pointer-events: none;
-  padding-top: 18vh; /* đẩy block chữ lên cao */
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  pointer-events: none;
+  padding-top: var(--spacing-top-ui); 
 }
 
-/* Center text */
+/* Text Content (Tăng cường Glow) */
 #phase1Text {
-  max-width: 78vw;
-  color: #ffffff;
-  text-align: center;
-  font-size: clamp(20px, 5.2vw, 32px);
-  line-height: 1.5;
-  letter-spacing: 0.4px;
-  pointer-events: auto;
-  text-shadow: 0 0 8px rgba(0,0,0,0.55);
+  max-width: 85vw; /* Tăng chiều rộng trên mobile */
+  color: var(--color-text-light);
+  text-align: center;
+  font-size: clamp(1.4rem, 6vw, 2.2rem); /* Tăng kích thước font */
+  line-height: 1.6; /* Tăng line-height cho dễ đọc */
+  letter-spacing: 0.04em; 
+  pointer-events: auto;
+  
+  /* Tăng cường Text Shadow cho hiệu ứng nổi bật (VIP Glow) */
+  text-shadow: 
+    0 0 10px rgba(0,0,0,0.8), /* Shadow tối cơ bản */
+    0 0 20px rgba(255, 255, 255, 0.5); /* Glow trắng mạnh hơn */
 }
 
-/* Next arrow button – glass, viền đen, mũi tên trắng */
+/* Next arrow button – Glassmorphism (Nâng cấp) */
 #phase1Next {
-  margin-top: 30px;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
+  margin-top: var(--spacing-btn-margin);
+  width: var(--btn-size);
+  height: var(--btn-size);
+  border-radius: 50%;
 
-  position: relative;
-  border: 2px solid rgba(0, 0, 0, 0.95);
-  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.25), rgba(255,255,255,0.02));
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  position: relative;
+  /* Viền glow nhẹ nhàng hơn */
+  border: 2px solid rgba(255, 255, 255, 0.4); 
+  
+  /* Tối ưu Glassmorphism */
+  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.35), rgba(255,255,255,0.05));
+  backdrop-filter: blur(12px); /* Tăng độ mờ */
+  -webkit-backdrop-filter: blur(12px);
 
-  color: #ffffff;
-  font-size: 28px;
-  font-weight: 600;
+  color: var(--color-text-light);
+  font-size: var(--btn-font-size);
+  font-weight: 600;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
+  opacity: 0;
+  transform: translateY(15px) translateZ(0); /* Dịch chuyển lớn hơn */
+  pointer-events: none;
 
-  transition:
-    opacity 0.45s ease,
-    transform 0.45s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+  transition:
+    opacity var(--transition-duration-slow) ease,
+    transform var(--transition-duration-slow) ease,
+    background var(--transition-duration-fast) ease,
+    box-shadow var(--transition-duration-fast) ease;
 
-  box-shadow:
-    0 10px 26px rgba(0, 0, 0, 0.6),
-    0 0 18px rgba(120,160,255,0.4);
+  /* Box Shadow nhiều lớp */
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.75), /* Shadow tối sâu */
+    0 0 35px var(--color-glow-blue); /* Lớp glow xanh nổi bật */
 }
 
-/* vòng sáng bên trong cho sang hơn */
+/* Vòng sáng bên trong */
 #phase1Next::before {
-  content: "";
-  position: absolute;
-  inset: 6px;
-  border-radius: inherit;
-  border: 1px solid rgba(255,255,255,0.25);
-  box-shadow: 0 0 10px rgba(255,255,255,0.12) inset;
+  content: "";
+  position: absolute;
+  inset: 4px; /* Tăng độ dày viền trong */
+  border-radius: inherit;
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 0 15px rgba(255,255,255,0.3) inset; /* Tăng độ sáng inset */
 }
 
 #phase1Next.visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) translateZ(0); 
+  pointer-events: auto;
 }
 
 #phase1Next:hover {
-  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.36), rgba(255,255,255,0.08));
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.6),
-    0 0 26px rgba(150,190,255,0.7);
-  border-color: rgba(0,0,0,0.8);
+  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.45), rgba(255,255,255,0.1));
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.75),
+    0 0 45px rgba(180, 210, 255, 0.9); /* Glow mạnh hơn khi hover */
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 #phase1Next:active {
-  transform: translateY(3px);
-  box-shadow:
-    0 4px 14px rgba(0,0,0,0.7),
-    0 0 18px rgba(140,180,255,0.6);
+  transform: translateY(3px) scale(0.96) translateZ(0);
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.8),
+    0 0 25px rgba(180, 210, 255, 0.7);
 }
 
-/* Smaller phones */
-@media (max-width: 380px) {
-  #phase1Text {
-    max-width: 88vw;
-    font-size: clamp(18px, 4.8vw, 24px);
-  }
-
-  #phase1Next {
-    width: 56px;
-    height: 56px;
-    font-size: 24px;
-  }
+/* ==========================================================
+   RESPONSIVE (Đảm bảo tối ưu trên mọi iPhone)
+========================================================== */
+@media (max-width: 450px) {
+  :root {
+    --btn-size: 60px;
+    --btn-font-size: 28px;
+  }
+  
+  /* Tăng chiều rộng nội dung trên mobile nhỏ hơn */
+  #phase1Text {
+    max-width: 90vw;
+  }
 }
