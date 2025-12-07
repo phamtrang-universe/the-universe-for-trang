@@ -1,36 +1,65 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>The Universe of Trang</title>
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <meta name="theme-color" content="#050510" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Project: TRANG</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <canvas id="universeCanvas"></canvas>
+    <canvas id="universe"></canvas>
 
-  <div id="uiLayer">
-    <div id="textContainer">
-        <p id="mainText" class="fade-in"></p>
+    <div class="screen-fx scanlines"></div> 
+    <div class="screen-fx vignette"></div>
+    <div class="screen-fx noise"></div>
+
+    <div id="hud-layer">
+        
+        <div class="hud-corner top-left">
+            <div class="tech-line">SYS: ONLINE</div>
+            <div class="tech-line">LAT: 21.0285° N</div>
+        </div>
+
+        <div class="hud-corner top-right">
+            <div class="tech-line">PWR: 100%</div>
+            <div class="tech-line blink" id="system-status">STANDBY</div>
+        </div>
+
+        <div class="hud-corner bottom-left">
+             <div class="tech-line">SIGNALStr: <span id="sig-strength">--</span>dB</div>
+        </div>
+
+        <div id="central-display">
+            
+            <div id="target-frame" class="hidden">
+                <div class="bracket tl"></div> <div class="bracket tr"></div> <div class="bracket bl"></div> <div class="bracket br"></div> </div>
+
+            <h1 id="main-title" data-text="SYSTEM START">SYSTEM START</h1>
+            
+            <p id="status-log">Initializing navigation sequence...</p>
+
+            <div id="progress-container" class="hidden">
+                <div id="progress-bar"></div>
+            </div>
+        </div>
+
+        <button id="engage-btn" class="hidden">
+            <div class="btn-content">
+                <span class="btn-text">ENGAGE</span>
+                <span class="btn-sub">INITIATE SEQUENCE</span>
+            </div>
+            <div class="btn-border"></div>
+        </button>
     </div>
 
-    <button id="nextBtn" class="glass-btn" aria-label="Next Phase">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </button>
-  </div>
+    <audio id="bg-music" src="music.mp3" loop></audio>
 
-  <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
-
-  <script src="scripts.js" defer></script>
+    <script src="scripts.js"></script>
 </body>
 </html>
