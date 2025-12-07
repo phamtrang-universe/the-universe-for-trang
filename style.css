@@ -12,6 +12,8 @@
 body, html {
     width: 100%;
     height: 100%;
+    /* Fix lỗi thanh địa chỉ iPhone */
+    height: 100dvh; 
     background-color: var(--bg-color);
     overflow: hidden;
     font-family: 'Inter', sans-serif;
@@ -35,194 +37,77 @@ body, html {
     transition: opacity 1.5s ease;
 }
 
-.gate-content {
-    text-align: center;
-    width: 85%;
-    max-width: 340px;
-    animation: fadeInUp 1s ease-out;
-}
-
-.gate-title {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 2rem;
-    color: var(--text-gold);
-    letter-spacing: 4px;
-    margin-bottom: 8px;
-    text-shadow: 0 0 15px var(--accent-glow);
-}
-
-.gate-subtitle {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.5);
-    margin-bottom: 40px;
-    letter-spacing: 3px;
-}
+.gate-content { text-align: center; width: 85%; max-width: 340px; animation: fadeInUp 1s ease-out; }
+.gate-title { font-family: 'Cinzel Decorative', serif; font-size: 2rem; color: var(--text-gold); letter-spacing: 4px; margin-bottom: 8px; text-shadow: 0 0 15px var(--accent-glow); }
+.gate-subtitle { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 40px; letter-spacing: 3px; }
 
 #pass-input {
-    width: 200px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--input-line);
-    color: #fff;
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 1.8rem;
-    text-align: center;
-    letter-spacing: 12px;
-    padding: 10px;
-    outline: none;
-    transition: all 0.3s ease;
+    width: 200px; background: transparent; border: none; border-bottom: 1px solid var(--input-line);
+    color: #fff; font-family: 'Cinzel Decorative', serif; font-size: 1.8rem; text-align: center;
+    letter-spacing: 12px; padding: 10px; outline: none; transition: all 0.3s ease;
 }
-
 #pass-input:focus { border-bottom: 1px solid var(--text-gold); }
 
 #unlock-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 14px 45px;
-    color: var(--text-white);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: all 0.4s ease;
-    margin-top: 30px;
+    background: transparent; border: 1px solid rgba(255, 255, 255, 0.3); padding: 14px 45px;
+    color: var(--text-white); font-family: 'Inter', sans-serif; font-size: 0.8rem; letter-spacing: 3px;
+    cursor: pointer; transition: all 0.4s ease; margin-top: 30px;
 }
-
-#error-msg {
-    color: var(--error-red);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    margin-top: 20px;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
+#error-msg { color: var(--error-red); font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-top: 20px; opacity: 0; transition: opacity 0.3s; }
 
 /* --- OPENING SCREEN --- */
 #opening-screen {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    background: var(--bg-color);
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    transition: opacity 2s ease;
-    pointer-events: none;
+    position: fixed; inset: 0; z-index: 50; background: var(--bg-color);
+    display: flex; flex-direction: column; opacity: 0; transition: opacity 2s ease; pointer-events: none;
 }
-
 #opening-screen.visible { opacity: 1; pointer-events: auto; }
 #opening-screen.hidden { display: none; }
 
 #top-text-area {
-    height: 30%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    padding-bottom: 10px;
+    height: 30%; width: 100%; display: flex; flex-direction: column; justify-content: flex-end;
+    align-items: center; padding-bottom: 10px;
     background: linear-gradient(to bottom, #050510 0%, #0a0a1a 100%);
 }
-
 #opening-title {
-    font-family: 'Parisienne', cursive;
-    font-size: clamp(2.5rem, 8vw, 3.5rem);
-    color: var(--text-gold);
-    text-shadow: 0 0 20px rgba(224, 192, 151, 0.3);
-    margin-bottom: 5px;
-    opacity: 0;
-    animation: fadeInUp 2s ease forwards 0.5s;
+    font-family: 'Parisienne', cursive; font-size: clamp(2.5rem, 8vw, 3.5rem); color: var(--text-gold);
+    text-shadow: 0 0 20px rgba(224, 192, 151, 0.3); margin-bottom: 5px; opacity: 0; animation: fadeInUp 2s ease forwards 0.5s;
 }
-
 #opening-subtitle {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-    opacity: 0;
-    animation: fadeInUp 2s ease forwards 1.5s;
+    font-family: 'Inter', sans-serif; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); opacity: 0; animation: fadeInUp 2s ease forwards 1.5s;
 }
 
 #bottom-canvas-area {
-    height: 70%;
-    width: 100%;
-    position: relative;
+    height: 70%; width: 100%; position: relative;
     background: radial-gradient(circle at center 30%, #120e1f 0%, #050510 70%);
 }
-
 #intro-canvas { width: 100%; height: 100%; display: block; }
 
-/* --- MAIN JOURNEY (CĂN GIỮA TUYỆT ĐỐI) --- */
+/* --- MAIN JOURNEY (FULL SCREEN FIX) --- */
 #main-journey {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    opacity: 0;
-    transition: opacity 3s ease;
-    background: #000;
-    pointer-events: none;
-    
-    /* Dùng Flexbox để căn giữa mọi thứ bên trong */
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Căn giữa dọc */
-    align-items: center;     /* Căn giữa ngang */
+    position: fixed; inset: 0; z-index: 60; opacity: 0; transition: opacity 3s ease;
+    background: #000; pointer-events: none;
 }
-
 #main-journey.visible { opacity: 1; }
+#main-canvas { position: fixed; inset: 0; width: 100vw; height: 100dvh; }
 
-#main-canvas {
-    position: absolute; /* Canvas làm nền */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1; /* Nằm dưới chữ và ảnh */
-}
-
-/* Container chứa ảnh và chữ */
 #journey-text-container {
-    position: relative; /* Để nổi lên trên canvas */
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: 100%;
-    max-width: 90%; /* Không để dính sát lề màn hình */
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    text-align: center; width: 90%; z-index: 100;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 
-/* Ảnh chòm sao cuối cùng */
 #final-constellation-img {
-    display: block;
-    width: 60vw;  /* Chiều rộng bằng 60% màn hình */
-    max-width: 300px; /* Giới hạn tối đa để không quá to trên máy tính */
-    height: auto;
-    margin: 0 auto 20px auto; /* Canh giữa và cách chữ bên dưới 20px */
-    opacity: 0;
-    transition: opacity 3s ease 0.5s;
+    display: block; width: 60vw; max-width: 300px; height: auto;
+    margin: 0 auto 20px auto; opacity: 0; transition: opacity 3s ease 0.5s;
     filter: drop-shadow(0 0 15px var(--accent-glow));
 }
-
 #final-title {
-    font-family: 'Parisienne', cursive;
-    color: var(--text-gold);
-    font-size: clamp(3rem, 10vw, 4.5rem);
-    text-shadow: 0 0 25px rgba(224,192,151,0.8);
-    margin: 0 0 10px 0;
-    opacity: 0;
-    transition: opacity 3s ease 1.5s;
-    line-height: 1.2;
+    font-family: 'Parisienne', cursive; color: var(--text-gold);
+    font-size: clamp(3rem, 10vw, 4.5rem); text-shadow: 0 0 25px rgba(224,192,151,0.8);
+    margin: 0 0 10px 0; opacity: 0; transition: opacity 3s ease 1.5s; line-height: 1.2;
 }
-
 #final-subtitle {
-    font-family: 'Inter', sans-serif;
-    color: var(--text-white);
-    font-size: clamp(0.9rem, 3vw, 1.1rem);
-    opacity: 0;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    transition: opacity 3s ease 2.5s;
-    margin: 0;
+    font-family: 'Inter', sans-serif; color: var(--text-white);
+    font-size: clamp(0.9rem, 3vw, 1.1rem); opacity: 0; letter-spacing: 3px;
+    text-transform: uppercase; transition: opacity 3s ease 2.5s; margin: 0;
 }
