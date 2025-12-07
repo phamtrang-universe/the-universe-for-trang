@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const introCanvas = document.getElementById('intro-canvas');
     const mainJourney = document.getElementById('main-journey');
     const bgMusic = document.getElementById('bg-music');
+    
+    // Các element cho màn hình cuối
+    const finalImg = document.getElementById('final-constellation-img');
+    const finalTitle = document.getElementById('final-title');
+    const finalSubtitle = document.getElementById('final-subtitle');
 
     // --- VARIABLES ---
     let introCtx = introCanvas.getContext('2d');
@@ -20,12 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let isIntroActive = false;
     
     let drawState = {
-        started: false, completed: false, progress: 0, speed: 0.025
+        started: false,      
+        completed: false,    
+        progress: 0,         
+        speed: 0.02 
     };
 
-    // =========================================
     // 1. XỬ LÝ MẬT MÃ
-    // =========================================
     function checkPassword() {
         if (passInput.value.trim() === ACCESS_CODE) {
             unlockUniverse();
@@ -42,9 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function unlockUniverse() {
         if(bgMusic) { bgMusic.volume = 0.6; bgMusic.play().catch(()=>{}); }
 
-        gateScreen.style.transition = "opacity 1.5s ease";
         gateScreen.style.opacity = 0;
-        
         setTimeout(() => {
             gateScreen.style.display = 'none';
             openingScreen.classList.remove('hidden');
@@ -55,25 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
             initBackgroundStars();
             renderIntro();
             
-            // TỰ ĐỘNG VẼ SAU 1.5 GIÂY
+            // TỰ ĐỘNG BẮT ĐẦU VẼ SAU 1.5 GIÂY
             setTimeout(() => {
                 drawState.started = true;
-                const sub = document.getElementById('opening-subtitle');
-                if(sub) {
-                    sub.style.opacity = 0;
-                    setTimeout(() => {
-                        sub.innerText = "Watching the stars align for you...";
-                        sub.style.opacity = 1;
-                    }, 500);
-                }
             }, 1500);
 
         }, 1200);
     }
 
-    // =========================================
-    // 2. VẼ BỌ CẠP (INTRO)
-    // =========================================
+    // 2. HỆ THỐNG INTRO (BỌ CẠP)
     function resize() {
         const container = document.getElementById('bottom-canvas-area');
         if (container) {
@@ -131,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (drawState.progress >= constellation.length - 1) {
                 drawState.progress = constellation.length - 1;
                 drawState.completed = true;
-                setTimeout(startGalaxySequence, 1500);
+                setTimeout(transitionToMainJourney, 1500); 
             }
         }
 
@@ -139,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             introCtx.save();
             introCtx.beginPath();
             introCtx.strokeStyle = "rgba(224, 192, 151, 0.6)"; introCtx.lineWidth = 1.5;
-            introCtx.shadowBlur = 15; introCtx.shadowColor = "rgba(224, 192, 151, 0.8)";
+            introCtx.shadowBlur = 10; introCtx.shadowColor = "rgba(224, 192, 151, 0.8)";
             introCtx.lineCap = "round"; introCtx.lineJoin = "round";
             
             const lastIndex = Math.floor(drawState.progress);
@@ -148,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (constellation.length > 0) {
                 introCtx.moveTo(constellation[0].x, constellation[0].y);
                 for(let i=1; i<=lastIndex; i++) introCtx.lineTo(constellation[i].x, constellation[i].y);
+                
                 if (lastIndex < constellation.length - 1) {
                     const p1 = constellation[lastIndex]; const p2 = constellation[lastIndex + 1];
                     introCtx.lineTo(p1.x + (p2.x - p1.x) * t, p1.y + (p2.y - p1.y) * t);
@@ -169,143 +164,86 @@ document.addEventListener('DOMContentLoaded', () => {
                 introCtx.beginPath(); introCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); introCtx.fill();
             }
         });
+
         requestAnimationFrame(renderIntro);
     }
 
-    // =========================================
-    // 3. DẢI NGÂN HÀ XOẮN ỐC (ĐÃ CĂN CHỈNH)
-    // =========================================
+    // 3. GALAXY ENDING (ĐÃ CĂN GIỮA)
     let mainCanvas = document.getElementById('main-canvas');
     let mainCtx = mainCanvas.getContext('2d');
-    let galaxyStars = [];
+    let galaxyParticles = [];
     let journeyActive = false;
-    let centerX, centerY; // Biến lưu tâm màn hình
+    let centerX, centerY;
 
-    function startGalaxySequence() {
+    function transitionToMainJourney() {
         openingScreen.style.transition = "opacity 2s ease";
         openingScreen.style.opacity = 0;
-        
         setTimeout(() => {
             openingScreen.classList.add('hidden');
             isIntroActive = false; 
-
             mainJourney.classList.remove('hidden');
             mainJourney.classList.add('visible');
-            
-            initGalaxy();
+            initMainJourney();
         }, 2000);
     }
 
-    function initGalaxy() {
+    function initMainJourney() {
         journeyActive = true;
+        resizeMainCanvas();
+        window.addEventListener('resize', resizeMainCanvas);
+
+        for(let i=0; i<800; i++) galaxyParticles.push(new GalaxyParticle());
+
+        // Hiện các element nội dung cuối
+        setTimeout(() => { finalImg.style.opacity = 1; }, 500);
+        setTimeout(() => { finalTitle.style.opacity = 1; }, 1500);
+        setTimeout(() => { finalSubtitle.style.opacity = 1; }, 2500);
+
+        renderGalaxy();
+    }
+
+    function resizeMainCanvas() {
         mainCanvas.width = window.innerWidth * window.devicePixelRatio;
         mainCanvas.height = window.innerHeight * window.devicePixelRatio;
         mainCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
-        
-        // CĂN GIỮA TUYỆT ĐỐI
+        // Cập nhật tâm màn hình khi resize
         centerX = window.innerWidth / 2;
         centerY = window.innerHeight / 2;
-
-        galaxyStars = [];
-        const starCount = 2000; 
-        
-        for (let i = 0; i < starCount; i++) {
-            galaxyStars.push(new GalaxyStar());
-        }
-
-        const finalContainer = document.getElementById('journey-text-container');
-        finalContainer.innerHTML = '';
-        const h1 = document.createElement('h1');
-        h1.innerText = "My Universe";
-        h1.style.cssText = "font-family:'Parisienne'; color:#e0c097; font-size:3.5rem; text-shadow:0 0 25px rgba(224,192,151,0.8); margin-bottom:10px; opacity:0; transition:opacity 3s ease 1s; pointer-events:none;";
-        
-        const p = document.createElement('p');
-        p.innerText = "Where you shine the brightest.";
-        p.style.cssText = "font-family:'Inter'; color:#fff; font-size:1.1rem; opacity:0; letter-spacing:3px; text-transform: uppercase; transition:opacity 3s ease 2s; pointer-events:none;";
-        
-        finalContainer.style.position = 'absolute';
-        finalContainer.style.top = '50%';
-        finalContainer.style.left = '50%';
-        finalContainer.style.transform = 'translate(-50%, -50%)';
-        finalContainer.style.textAlign = 'center';
-        finalContainer.style.width = '100%';
-        finalContainer.style.zIndex = '100'; 
-        
-        finalContainer.appendChild(h1);
-        finalContainer.appendChild(p);
-
-        setTimeout(() => { h1.style.opacity = 1; p.style.opacity = 0.9; }, 500);
-
-        renderGalaxyLoop();
     }
 
-    class GalaxyStar {
+    class GalaxyParticle {
         constructor() {
             this.reset();
         }
         reset() {
             this.angle = Math.random() * Math.PI * 2;
-            this.distance = Math.random(); 
-            // Tạo hình xoắn ốc Logarit
-            this.spiralAngle = this.distance * Math.PI * 4; 
-            
-            // Màu sắc lung linh (Tím, Hồng, Xanh)
-            const colors = ["#ff9a9e", "#a18cd1", "#fad0c4", "#fbc2eb", "#a6c1ee", "#ffffff"];
+            this.radius = Math.random() * (Math.min(window.innerWidth, window.innerHeight) * 0.45); 
+            this.size = Math.random() * 1.5 + 0.1;
+            this.speed = (1 / this.radius) * 40 + 0.01;
+            // Màu sắc ngẫu nhiên
+            const colors = ["#e0c097", "#ffffff", "#a8c7ff", "#ffacd8"];
             this.color = colors[Math.floor(Math.random() * colors.length)];
-            
-            this.size = Math.random() * 2;
-            this.speed = (1 - this.distance) * 0.002 + 0.0005; 
-            this.blinkSpeed = Math.random() * 0.05;
         }
-        
         update() {
-            this.angle += this.speed;
+            this.angle += this.speed * 0.0005; 
+            // Tính toán vị trí dựa trên tâm màn hình (centerX, centerY)
+            this.x = centerX + Math.cos(this.angle) * this.radius;
+            this.y = centerY + Math.sin(this.angle) * this.radius * 0.8; 
         }
-        
         draw() {
-            // Giới hạn bán kính theo chiều ngang màn hình (điện thoại) để không bị cắt
-            // Lấy 90% chiều rộng màn hình chia 2
-            const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.45; 
-            const r = this.distance * maxRadius;
-            
-            const x = centerX + Math.cos(this.angle + this.spiralAngle) * r;
-            // Ép dẹt một chút theo chiều dọc để tạo góc nhìn 3D
-            const y = centerY + Math.sin(this.angle + this.spiralAngle) * r * 0.85; 
-
-            const alpha = 0.5 + Math.sin(Date.now() * 0.005 + this.blinkSpeed * 100) * 0.5;
-
-            mainCtx.globalCompositeOperation = "lighter";
+            mainCtx.globalCompositeOperation = "lighter"; 
             mainCtx.fillStyle = this.color;
-            mainCtx.globalAlpha = alpha * (1 - this.distance * 0.6); 
-            
-            mainCtx.beginPath();
-            mainCtx.arc(x, y, this.size, 0, Math.PI * 2);
-            mainCtx.fill();
+            mainCtx.globalAlpha = 1 - (this.radius / (Math.min(window.innerWidth, window.innerHeight)*0.6)); 
+            mainCtx.beginPath(); mainCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2); mainCtx.fill();
         }
     }
 
-    function renderGalaxyLoop() {
+    function renderGalaxy() {
         if (!journeyActive) return;
-
         mainCtx.globalCompositeOperation = "source-over";
         mainCtx.fillStyle = "rgba(5, 5, 16, 0.2)"; 
         mainCtx.fillRect(0, 0, window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
-
-        galaxyStars.forEach(star => {
-            star.update();
-            star.draw();
-        });
-
-        // Vẽ Core sáng ở giữa
-        const gradient = mainCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, window.innerWidth * 0.15);
-        gradient.addColorStop(0, "rgba(255, 230, 200, 0.15)");
-        gradient.addColorStop(1, "rgba(0,0,0,0)");
-        mainCtx.fillStyle = gradient;
-        mainCtx.globalCompositeOperation = "lighter";
-        mainCtx.beginPath();
-        mainCtx.arc(centerX, centerY, window.innerWidth * 0.2, 0, Math.PI*2);
-        mainCtx.fill();
-
-        requestAnimationFrame(renderGalaxyLoop);
+        galaxyParticles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(renderGalaxy);
     }
 });
