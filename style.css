@@ -98,7 +98,7 @@ body, html {
     transition: opacity 0.3s;
 }
 
-/* --- OPENING SCREEN (SPLIT) --- */
+/* --- OPENING SCREEN --- */
 #opening-screen {
     position: fixed;
     inset: 0;
@@ -108,7 +108,7 @@ body, html {
     flex-direction: column;
     opacity: 0;
     transition: opacity 2s ease;
-    pointer-events: none; /* Không cho chạm lung tung */
+    pointer-events: none;
 }
 
 #opening-screen.visible { opacity: 1; pointer-events: auto; }
@@ -152,7 +152,7 @@ body, html {
 
 #intro-canvas { width: 100%; height: 100%; display: block; }
 
-/* --- MAIN JOURNEY --- */
+/* --- MAIN JOURNEY (FINAL SCREEN) --- */
 #main-journey {
     position: fixed;
     inset: 0;
@@ -165,3 +165,51 @@ body, html {
 
 #main-journey.visible { opacity: 1; }
 #main-canvas { position: fixed; inset: 0; }
+
+/* Container cho nội dung cuối cùng */
+#journey-text-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Căn giữa hoàn toàn */
+    text-align: center;
+    width: 90%; /* Đảm bảo không bị quá sát lề trên điện thoại nhỏ */
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ảnh chòm sao cuối cùng */
+#final-constellation-img {
+    display: block;
+    max-width: 60%; /* Điều chỉnh kích thước ảnh cho phù hợp */
+    height: auto;
+    margin-bottom: 20px; /* Khoảng cách với chữ bên dưới */
+    opacity: 0; /* Ẩn ban đầu */
+    transition: opacity 3s ease 0.5s; /* Hiệu ứng hiện dần */
+    filter: drop-shadow(0 0 10px var(--accent-glow)); /* Hiệu ứng phát sáng nhẹ */
+}
+
+/* Tiêu đề cuối */
+#final-title {
+    font-family: 'Pinyon Script', cursive; /* Font chữ mới sang trọng hơn */
+    color: var(--text-gold);
+    font-size: clamp(3rem, 10vw, 4.5rem); /* Tự động điều chỉnh kích thước */
+    text-shadow: 0 0 25px rgba(224,192,151,0.8);
+    margin-bottom: 10px;
+    opacity: 0;
+    transition: opacity 3s ease 1.5s;
+}
+
+/* Phụ đề cuối */
+#final-subtitle {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-white);
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+    opacity: 0;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: opacity 3s ease 2.5s;
+}
