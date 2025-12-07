@@ -1,270 +1,244 @@
-/* =========================================
-   1. SETUP & VARIABLES
-   ========================================= */
 :root {
-    --bg-color: #020205; /* Đen gần tuyệt đối */
-    --primary-color: #a8c7ff; /* Xanh dương nhạt (Hologram) */
-    --accent-color: #00f3ff; /* Xanh Cyan (Điểm nhấn) */
-    --alert-color: #ff3e3e; /* Đỏ (nếu cần cảnh báo) */
-    --glass-bg: rgba(10, 20, 40, 0.6);
-    --font-tech: 'Rajdhani', sans-serif;
-    --font-header: 'Orbitron', sans-serif;
+    --bg-color: #050510;       /* Đen sâu (Deep Space) */
+    --text-gold: #e0c097;      /* Vàng kim sang trọng (Gold Luxury) */
+    --text-white: #f0f8ff;     /* Trắng sứ */
+    --accent-glow: rgba(224, 192, 151, 0.3); /* Glow vàng nhẹ */
+    --input-line: rgba(255, 255, 255, 0.2);
+    --error-red: #ff6b6b;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none; /* Ngăn bôi đen chữ */
-}
+/* Reset cơ bản & Tối ưu Font chữ */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body, html {
     width: 100%;
     height: 100%;
     background-color: var(--bg-color);
     overflow: hidden;
-    font-family: var(--font-tech);
-    color: var(--primary-color);
+    font-family: 'Inter', sans-serif;
+    /* Làm mượt font chữ trên iPhone */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* =========================================
-   2. LAYERS & FX
+   1. ANIMATIONS (HIỆU ỨNG CHUYỂN ĐỘNG)
    ========================================= */
-/* Canvas Vũ trụ (Dưới cùng) */
-#universe {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Lớp hiệu ứng màn hình (Giữa) */
-.screen-fx {
-    position: fixed;
-    inset: 0;
-    z-index: 5;
-    pointer-events: none; /* Chạm xuyên qua */
-}
-
-/* Kẻ ngang (Scanlines) */
-.scanlines {
-    background: linear-gradient(
-        to bottom,
-        rgba(255,255,255,0),
-        rgba(255,255,255,0) 50%,
-        rgba(0,0,0,0.2) 50%,
-        rgba(0,0,0,0.2)
-    );
-    background-size: 100% 4px;
-    opacity: 0.6;
-}
-
-/* Tối 4 góc (Vignette) */
-.vignette {
-    background: radial-gradient(
-        circle,
-        rgba(0,0,0,0) 60%,
-        rgba(0,0,0,0.8) 100%
-    );
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(224, 192, 151, 0.1); }
+    50% { box-shadow: 0 0 20px rgba(224, 192, 151, 0.4); }
 }
 
 /* =========================================
-   3. HUD LAYER (Giao diện chính)
+   2. MÀN HÌNH NHẬP MẬT MÃ (THE GATE)
    ========================================= */
-#hud-layer {
+#gate-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    /* Gradient tỏa từ tâm tạo chiều sâu */
+    background: radial-gradient(circle at center, #151525 0%, #000000 90%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#gate-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gate-content {
+    text-align: center;
+    width: 85%;
+    max-width: 340px;
+    animation: fadeInUp 1s ease-out; /* Hiệu ứng trôi lên */
+}
+
+.gate-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 2rem;
+    color: var(--text-gold);
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    text-shadow: 0 0 15px var(--accent-glow);
+}
+
+.gate-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 300;
+}
+
+/* Ô nhập liệu Cao cấp */
+.input-group {
+    position: relative;
+    margin-bottom: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#pass-input {
+    width: 200px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--input-line);
+    color: #fff;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.8rem;
+    text-align: center;
+    letter-spacing: 12px; /* Giãn số ra cho đẹp */
+    padding: 10px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#pass-input:focus {
+    border-bottom: 1px solid var(--text-gold);
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+#unlock-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 14px 45px;
+    color: var(--text-white);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    border-radius: 2px;
+}
+
+#unlock-btn:active {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
+}
+
+#error-msg {
+    color: var(--error-red);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    margin-top: 20px;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    height: 20px; /* Giữ chỗ để không bị nhảy layout */
+}
+#error-msg.visible { opacity: 1; }
+
+/* =========================================
+   3. MÀN HÌNH MỞ ĐẦU (SPLIT LAYOUT)
+   ========================================= */
+#opening-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    opacity: 0; /* Mặc định ẩn để chờ JS kích hoạt fade-in */
+    transition: opacity 2s ease;
+}
+
+#opening-screen.visible {
+    opacity: 1;
+}
+
+#opening-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* --- KHU VỰC CHỮ (35% Trên) --- */
+#top-text-area {
+    height: 35%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Nằm sát đáy khu vực trên */
+    align-items: center;
+    padding-bottom: 10px;
+    z-index: 10;
+    /* Gradient nhẹ để hòa trộn với phần dưới */
+    background: linear-gradient(to bottom, #050510 0%, #0a0a1a 100%);
+}
+
+#opening-title {
+    font-family: 'Parisienne', cursive;
+    font-size: clamp(2.8rem, 9vw, 4rem); /* Tự chỉnh cỡ chữ theo màn hình */
+    color: var(--text-gold);
+    text-shadow: 0 0 20px rgba(224, 192, 151, 0.3);
+    margin-bottom: 5px;
+    font-weight: 400;
+    opacity: 0;
+    animation: fadeInUp 1.5s ease forwards 0.5s; /* Delay 0.5s mới hiện */
+}
+
+#opening-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    max-width: 80%;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    animation: fadeInUp 1.5s ease forwards 1s; /* Delay 1s mới hiện */
+}
+
+/* --- KHU VỰC VẼ (65% Dưới) --- */
+#bottom-canvas-area {
+    height: 65%;
+    width: 100%;
+    position: relative;
+    /* Background hòa trộn mượt mà */
+    background: radial-gradient(circle at center 30%, #120e1f 0%, #050510 70%);
+}
+
+#intro-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* =========================================
+   4. MÀN HÌNH HÀNH TRÌNH CHÍNH (THE JOURNEY)
+   ========================================= */
+#main-journey {
     position: fixed;
     inset: 0;
     z-index: 10;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    /* Hiệu ứng bóng mờ màn hình cũ */
-    text-shadow: 0 0 2px rgba(168, 199, 255, 0.5);
-}
-
-/* Các thông số góc */
-.hud-corner {
-    position: absolute;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 1px;
-    opacity: 0.8;
-}
-
-.top-left { top: 30px; left: 20px; text-align: left; border-left: 2px solid var(--accent-color); padding-left: 8px; }
-.top-right { top: 30px; right: 20px; text-align: right; border-right: 2px solid var(--accent-color); padding-right: 8px; }
-.bottom-left { bottom: 30px; left: 20px; }
-
-.tech-line { margin-bottom: 4px; }
-.blink { animation: blink 2s infinite; color: var(--accent-color); }
-
-/* =========================================
-   4. CENTRAL DISPLAY (Nội dung giữa)
-   ========================================= */
-#central-display {
-    text-align: center;
-    max-width: 90%;
-    margin-bottom: 60px; /* Nhường chỗ cho nút */
-    position: relative;
-    transition: opacity 0.5s ease;
-}
-
-#main-title {
-    font-family: var(--font-header);
-    font-size: clamp(1.8rem, 8vw, 3rem);
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #fff;
-    text-shadow: 0 0 15px var(--primary-color), 0 0 30px var(--accent-color);
-    margin-bottom: 10px;
-    
-    /* Hiệu ứng Glitch */
-    position: relative;
-}
-
-#status-log {
-    font-size: 1rem;
-    color: var(--primary-color);
-    opacity: 0.8;
-    font-family: var(--font-tech);
-    letter-spacing: 1px;
-    background: rgba(0, 243, 255, 0.1);
-    padding: 4px 12px;
-    display: inline-block;
-    border: 1px solid rgba(0, 243, 255, 0.3);
-}
-
-/* =========================================
-   5. TARGET FRAME (Khung ngắm)
-   ========================================= */
-#target-frame {
-    width: 200px;
-    height: 200px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    transition: all 0.5s ease;
-}
-
-#target-frame.hidden { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
-
-.bracket {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--accent-color);
-    box-shadow: 0 0 10px var(--accent-color);
-    transition: all 0.3s ease;
-}
-
-/* Định vị 4 góc */
-.tl { top: 0; left: 0; border-right: none; border-bottom: none; }
-.tr { top: 0; right: 0; border-left: none; border-bottom: none; }
-.bl { bottom: 0; left: 0; border-right: none; border-top: none; }
-.br { bottom: 0; right: 0; border-left: none; border-top: none; }
-
-/* Animation khi khóa mục tiêu */
-.locking .bracket {
-    width: 40px;
-    height: 40px;
-    border-color: #fff;
-}
-
-/* =========================================
-   6. PROGRESS BAR (Thanh Loading)
-   ========================================= */
-#progress-container {
-    width: 200px;
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    margin: 20px auto;
-    position: relative;
-    overflow: hidden;
-}
-#progress-container.hidden { display: none; }
-
-#progress-bar {
-    width: 0%;
-    height: 100%;
-    background: var(--accent-color);
-    box-shadow: 0 0 10px var(--accent-color);
-    transition: width 0.1s linear;
-}
-
-/* =========================================
-   7. ACTION BUTTON (Nút bấm Sci-fi)
-   ========================================= */
-#engage-btn {
-    position: absolute;
-    bottom: 50px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
     opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.5s ease;
+    transition: opacity 2.5s ease; /* Chuyển cảnh chậm rãi */
+    background: #000;
 }
 
-#engage-btn.hidden { pointer-events: none; }
-#engage-btn.visible { opacity: 1; transform: translateY(0); }
-
-.btn-content {
-    background: rgba(0, 243, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--accent-color);
-    padding: 12px 40px;
-    text-align: center;
-    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
-    transition: all 0.3s ease;
+#main-journey.visible {
+    opacity: 1;
 }
 
-.btn-text {
-    display: block;
-    font-family: var(--font-header);
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 2px;
-}
-
-.btn-sub {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--accent-color);
-    letter-spacing: 1px;
-    margin-top: 2px;
-}
-
-#engage-btn:active .btn-content {
-    background: rgba(0, 243, 255, 0.3);
-    transform: scale(0.95);
-}
-
-/* =========================================
-   8. ANIMATIONS
-   ========================================= */
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-/* Hiệu ứng Glitch nhẹ cho tiêu đề */
-@keyframes glitch-anim {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
-}
-
-.glitch {
-    animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
-    color: var(--accent-color) !important;
+#main-canvas {
+    position: fixed;
+    inset: 0;
 }
