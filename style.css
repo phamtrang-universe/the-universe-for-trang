@@ -1,111 +1,270 @@
-/* style.css */
-
+/* =========================================
+   1. SETUP & VARIABLES
+   ========================================= */
 :root {
-  --bg-color: #050510;
-  --text-color: #ffffff;
-  --accent-color: #a8bcff; /* Màu xanh tím nhẹ của sao */
+    --bg-color: #020205; /* Đen gần tuyệt đối */
+    --primary-color: #a8c7ff; /* Xanh dương nhạt (Hologram) */
+    --accent-color: #00f3ff; /* Xanh Cyan (Điểm nhấn) */
+    --alert-color: #ff3e3e; /* Đỏ (nếu cần cảnh báo) */
+    --glass-bg: rgba(10, 20, 40, 0.6);
+    --font-tech: 'Rajdhani', sans-serif;
+    --font-header: 'Orbitron', sans-serif;
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* Bỏ highlight khi chạm trên mobile */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none; /* Ngăn bôi đen chữ */
 }
 
 body, html {
-  width: 100%;
-  height: 100%;
-  background-color: var(--bg-color);
-  overflow: hidden;
-  font-family: 'Inter', sans-serif;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color);
+    overflow: hidden;
+    font-family: var(--font-tech);
+    color: var(--primary-color);
 }
 
-/* Canvas nằm dưới cùng */
-#universeCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+/* =========================================
+   2. LAYERS & FX
+   ========================================= */
+/* Canvas Vũ trụ (Dưới cùng) */
+#universe {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
 }
 
-/* Layer UI nằm đè lên trên */
-#uiLayer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  pointer-events: none; /* Để có thể chạm xuyên qua vào Canvas */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+/* Lớp hiệu ứng màn hình (Giữa) */
+.screen-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none; /* Chạm xuyên qua */
 }
 
-/* Typography */
-#textContainer {
-  pointer-events: auto;
-  text-align: center;
-  margin-bottom: 60px; /* Đẩy chữ lên trên một chút */
-  max-width: 90%;
+/* Kẻ ngang (Scanlines) */
+.scanlines {
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0,0,0,0.2) 50%,
+        rgba(0,0,0,0.2)
+    );
+    background-size: 100% 4px;
+    opacity: 0.6;
 }
 
-#mainText {
-  color: var(--text-color);
-  font-family: 'Playfair Display', serif; /* Font chữ nghiêng nghệ thuật */
-  font-size: clamp(1.5rem, 5vw, 2.2rem);
-  font-style: italic;
-  line-height: 1.6;
-  text-shadow: 0 0 20px rgba(168, 188, 255, 0.5); /* Glow nhẹ */
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 1.5s ease, transform 1.5s ease;
+/* Tối 4 góc (Vignette) */
+.vignette {
+    background: radial-gradient(
+        circle,
+        rgba(0,0,0,0) 60%,
+        rgba(0,0,0,0.8) 100%
+    );
 }
 
-#mainText.visible {
-  opacity: 1;
-  transform: translateY(0);
+/* =========================================
+   3. HUD LAYER (Giao diện chính)
+   ========================================= */
+#hud-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    /* Hiệu ứng bóng mờ màn hình cũ */
+    text-shadow: 0 0 2px rgba(168, 199, 255, 0.5);
 }
 
-/* Nút Next phong cách Glassmorphism */
-.glass-btn {
-  pointer-events: auto;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: all 0.5s ease;
-  margin-top: 40px;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+/* Các thông số góc */
+.hud-corner {
+    position: absolute;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    opacity: 0.8;
 }
 
-.glass-btn.show {
-  opacity: 1;
-  transform: scale(1);
+.top-left { top: 30px; left: 20px; text-align: left; border-left: 2px solid var(--accent-color); padding-left: 8px; }
+.top-right { top: 30px; right: 20px; text-align: right; border-right: 2px solid var(--accent-color); padding-right: 8px; }
+.bottom-left { bottom: 30px; left: 20px; }
+
+.tech-line { margin-bottom: 4px; }
+.blink { animation: blink 2s infinite; color: var(--accent-color); }
+
+/* =========================================
+   4. CENTRAL DISPLAY (Nội dung giữa)
+   ========================================= */
+#central-display {
+    text-align: center;
+    max-width: 90%;
+    margin-bottom: 60px; /* Nhường chỗ cho nút */
+    position: relative;
+    transition: opacity 0.5s ease;
 }
 
-.glass-btn:active {
-  transform: scale(0.95);
-  background: rgba(255, 255, 255, 0.2);
+#main-title {
+    font-family: var(--font-header);
+    font-size: clamp(1.8rem, 8vw, 3rem);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 15px var(--primary-color), 0 0 30px var(--accent-color);
+    margin-bottom: 10px;
+    
+    /* Hiệu ứng Glitch */
+    position: relative;
 }
 
-/* Animation mờ dần khi chuyển cảnh */
-.fade-out {
-  opacity: 0 !important;
-  transition: opacity 1s ease;
+#status-log {
+    font-size: 1rem;
+    color: var(--primary-color);
+    opacity: 0.8;
+    font-family: var(--font-tech);
+    letter-spacing: 1px;
+    background: rgba(0, 243, 255, 0.1);
+    padding: 4px 12px;
+    display: inline-block;
+    border: 1px solid rgba(0, 243, 255, 0.3);
+}
+
+/* =========================================
+   5. TARGET FRAME (Khung ngắm)
+   ========================================= */
+#target-frame {
+    width: 200px;
+    height: 200px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: all 0.5s ease;
+}
+
+#target-frame.hidden { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+
+.bracket {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+/* Định vị 4 góc */
+.tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+/* Animation khi khóa mục tiêu */
+.locking .bracket {
+    width: 40px;
+    height: 40px;
+    border-color: #fff;
+}
+
+/* =========================================
+   6. PROGRESS BAR (Thanh Loading)
+   ========================================= */
+#progress-container {
+    width: 200px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    margin: 20px auto;
+    position: relative;
+    overflow: hidden;
+}
+#progress-container.hidden { display: none; }
+
+#progress-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+    transition: width 0.1s linear;
+}
+
+/* =========================================
+   7. ACTION BUTTON (Nút bấm Sci-fi)
+   ========================================= */
+#engage-btn {
+    position: absolute;
+    bottom: 50px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+#engage-btn.hidden { pointer-events: none; }
+#engage-btn.visible { opacity: 1; transform: translateY(0); }
+
+.btn-content {
+    background: rgba(0, 243, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--accent-color);
+    padding: 12px 40px;
+    text-align: center;
+    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.btn-text {
+    display: block;
+    font-family: var(--font-header);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.btn-sub {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--accent-color);
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+#engage-btn:active .btn-content {
+    background: rgba(0, 243, 255, 0.3);
+    transform: scale(0.95);
+}
+
+/* =========================================
+   8. ANIMATIONS
+   ========================================= */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Hiệu ứng Glitch nhẹ cho tiêu đề */
+@keyframes glitch-anim {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+.glitch {
+    animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+    color: var(--accent-color) !important;
 }
